@@ -1,0 +1,315 @@
+{
+  "connectorName": "http",
+  "connectionName": "HTTP",
+  "title": "HTTP Connection",
+  "help": "<h1>HTTP Connection</h1> <b>The HTTP Connector allows you to send a http request.</b>",
+  "elements": [
+    {
+      "type": "attributeGroup",
+      "value": {
+        "groupName": "General",
+        "elements": [
+          {
+            "type": "attribute",
+            "value": {
+              "name": "baseUrl",
+              "displayName": "Base URL",
+              "inputType": "stringOrExpression",
+              "defaultValue": "http://",
+              "required": "true",
+              "helpTip": "Enter the base URL of the service, which serves as the root endpoint for all API requests."
+            }
+          },
+          {
+            "type": "attributeGroup",
+            "value": {
+              "groupName": "Auth Configuration",
+              "isCollapsed": "true",
+              "elements": [
+                {
+                  "type": "attribute",
+                  "value": {
+                    "name": "authType",
+                    "displayName": "Auth Type",
+                    "inputType": "combo",
+                    "required": "false",
+                    "comboValues": [
+                      "None",
+                      "Basic Auth",
+                      "OAuth"
+                    ],
+                    "defaultValue": "None",
+                    "helpTip": ""
+                  }
+                },
+                {
+                  "type": "attribute",
+                  "value": {
+                    "name": "oauthAuthorizationMode",
+                    "displayName": "OAuth Authorization Mode",
+                    "inputType": "combo",
+                    "required": "true",
+                    "comboValues": [
+                      "Header",
+                      "Payload"
+                    ],
+                    "defaultValue": "Header",
+                    "enableCondition": [{"authType": "OAuth"}]
+                  }
+                },
+                {
+                  "type": "attribute",
+                  "value": {
+                    "name": "oauthGrantType",
+                    "displayName": "OAuth Grant Type",
+                    "inputType": "combo",
+                    "required": "false",
+                    "comboValues": [
+                      "Authorization Code",
+                      "Client Credentials",
+                      "Password"
+                    ],
+                    "defaultValue": "Authorization Code",
+                    "enableCondition": [{"authType": "OAuth"}]
+                  }
+                },
+                {
+                  "type": "attribute",
+                  "value": {
+                    "name": "username",
+                    "displayName": "Username",
+                    "inputType": "stringOrExpression",
+                    "defaultValue": "",
+                    "required": "true",
+                    "helpTip": "Enter Username",
+                    "enableCondition": ["OR",
+                      {"authType": "Basic Auth"},
+                      ["AND", {"authType": "OAuth"}, {"oauthGrantType": "Password"}]
+                    ]
+                  }
+                },
+                {
+                  "type": "attribute",
+                  "value": {
+                    "name": "password",
+                    "displayName": "Password",
+                    "inputType": "stringOrExpression",
+                    "defaultValue": "",
+                    "required": "true",
+                    "helpTip": "Enter Password",
+                    "enableCondition": ["OR",
+                      {"authType": "Basic Auth"},
+                      ["AND", {"authType": "OAuth"}, {"oauthGrantType": "Password"}]
+                    ]
+                  }
+                },
+                {
+                  "type": "attribute",
+                  "value": {
+                    "name": "clientId",
+                    "displayName": "Client Id",
+                    "inputType": "stringOrExpression",
+                    "defaultValue": "",
+                    "required": "true",
+                    "helpTip": "",
+                    "enableCondition": [{"authType": "OAuth"}]
+                  }
+                },
+                {
+                  "type": "attribute",
+                  "value": {
+                    "name": "clientSecret",
+                    "displayName": "Client Secret",
+                    "inputType": "stringOrExpression",
+                    "defaultValue": "",
+                    "required": "true",
+                    "helpTip": "",
+                    "enableCondition": [{"authType": "OAuth"}]
+                  }
+                },
+                {
+                  "type": "attribute",
+                  "value": {
+                    "name": "tokenUrl",
+                    "displayName": "Token URL",
+                    "inputType": "stringOrExpression",
+                    "defaultValue": "",
+                    "required": "true",
+                    "helpTip": "",
+                    "enableCondition": [{"authType": "OAuth"}]
+                  }
+                },
+                {
+                  "type": "attribute",
+                  "value": {
+                    "name": "refreshToken",
+                    "displayName": "Refresh Token",
+                    "inputType": "stringOrExpression",
+                    "defaultValue": "",
+                    "required": "true",
+                    "helpTip": "",
+                    "enableCondition": ["AND", {"authType": "OAuth"}, {"oauthGrantType": "Authorization Code"}]
+                  }
+                },
+                {
+                  "type": "attribute",
+                  "value": {
+                    "name": "additionalProperties",
+                    "displayName": "Additional Properties",
+                    "inputType": "string",
+                    "defaultValue": "",
+                    "required": "false",
+                    "helpTip": "",
+                    "enableCondition": [{"authType": "OAuth"}]
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "type": "attributeGroup",
+            "value": {
+              "groupName": "Error Handling",
+              "isCollapsed": "true",
+              "elements": [
+                {
+                  "type": "attributeGroup",
+                  "value": {
+                    "groupName": "Timeout Properties",
+                    "isCollapsed": "true",
+                    "elements": [
+                      {
+                        "type": "attribute",
+                        "value": {
+                          "name": "timeoutDuration",
+                          "displayName": "Time to wait for a response (in milliseconds)",
+                          "inputType": "string",
+                          "defaultValue": "",
+                          "required": "false",
+                          "helpTip": ""
+                        }
+                      },
+                      {
+                        "type": "attribute",
+                        "value": {
+                          "name": "timeoutAction",
+                          "displayName": "Action to perform when response comes to a timeout endpoint",
+                          "inputType": "combo",
+                          "defaultValue": "Never",
+                          "required": "false",
+                          "comboValues": [
+                            "Never",
+                            "Discard",
+                            "Fault"
+                          ],
+                          "helpTip": "Never: No action performed, Discard: Discard the callback, Fault: Discard the callback and execute defined fault sequence"
+                        }
+                      },
+                      {
+                        "type": "attribute",
+                        "value": {
+                          "name": "retryErrorCodes",
+                          "displayName": "Error codes which put the connection into timeout mode immediately",
+                          "inputType": "string",
+                          "defaultValue": "",
+                          "required": "false",
+                          "helpTip": "Provide a comma separated error codes list",
+                          "placeholder": "500, 501"
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "type": "attributeGroup",
+                  "value": {
+                    "groupName": "Before Suspend Retry Properties",
+                    "isCollapsed": "true",
+                    "elements": [
+                      {
+                        "type": "attribute",
+                        "value": {
+                          "name": "retryCount",
+                          "displayName": "No of retry counts for a timeout connection before suspending",
+                          "inputType": "string",
+                          "defaultValue": "0",
+                          "required": "false",
+                          "helpTip": ""
+                        }
+                      },
+                      {
+                        "type": "attribute",
+                        "value": {
+                          "name": "retryDelay",
+                          "displayName": "Delay between retries for a timeout connection (in milliseconds)",
+                          "inputType": "string",
+                          "defaultValue": "0",
+                          "required": "false",
+                          "helpTip": "The time to wait between the last retry attempt and the next retry."
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "type": "attributeGroup",
+                  "value": {
+                    "groupName": "Suspend Properties",
+                    "isCollapsed": "true",
+                    "elements": [
+                      {
+                        "type": "attribute",
+                        "value": {
+                          "name": "suspendErrorCodes",
+                          "displayName": "Error codes which immediately put the connection into suspend mode immediately",
+                          "inputType": "string",
+                          "defaultValue": "",
+                          "required": "false",
+                          "helpTip": "Provide a comma separated error codes list",
+                          "placeholder": "403, 404"
+                        }
+                      },
+                      {
+                        "type": "attribute",
+                        "value": {
+                          "name": "suspendInitialDuration",
+                          "displayName": "Initial suspend duration when the connection is inactive (in milliseconds)",
+                          "inputType": "string",
+                          "defaultValue": "-1",
+                          "required": "false",
+                          "helpTip": "The initial suspend duration when the connection is marked as inactive"
+                        }
+                      },
+                      {
+                        "type": "attribute",
+                        "value": {
+                          "name": "suspendProgressionFactor",
+                          "displayName": "Suspend duration ratio to get the next suspend duration",
+                          "inputType": "string",
+                          "defaultValue": "1",
+                          "required": "false",
+                          "helpTip": "Next suspend duration = Previous suspend duration * Suspend duration ratio"
+                        }
+                      },
+                      {
+                        "type": "attribute",
+                        "value": {
+                          "name": "suspendMaximumDuration",
+                          "displayName": "Maximum suspend duration for the connection (in milliseconds)",
+                          "inputType": "string",
+                          "defaultValue": "",
+                          "required": "false",
+                          "helpTip": "Suspend duration = the minimum of maximum suspend duration and calculated suspend duration"
+                        }
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

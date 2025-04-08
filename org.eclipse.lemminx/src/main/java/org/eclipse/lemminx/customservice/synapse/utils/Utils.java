@@ -1378,4 +1378,17 @@ public class Utils {
             throw e;
         }
     }
+
+    public static boolean isValidProject(String projectRoot) {
+
+        if (StringUtils.isEmpty(projectRoot)) {
+            return false;
+        }
+        Path pomPath = Paths.get(projectRoot, "pom.xml");
+        Path srcPath = Paths.get(projectRoot, "src");
+        if (Files.notExists(pomPath) || Files.notExists(srcPath)) {
+            return false;
+        }
+        return true;
+    }
 }

@@ -31,7 +31,7 @@ import org.eclipse.lemminx.customservice.synapse.mediator.tryout.debugger.Breakp
 import org.eclipse.lemminx.customservice.synapse.mediator.tryout.debugger.DebugCommandClient;
 import org.eclipse.lemminx.customservice.synapse.mediator.tryout.debugger.DebugEventClient;
 import org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.ArtifactDeploymentException;
-import org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.InvalidConfigurationException;
+import org.eclipse.lemminx.customservice.synapse.InvalidConfigurationException;
 import org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.InvocationInfo;
 import org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.MediatorInfo;
 import org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.MediatorTryoutInfo;

@@ -20,6 +20,7 @@ package org.eclipse.lemminx.customservice.synapse.connectors;
 
 import org.apache.commons.io.FileUtils;
 import org.eclipse.lemminx.customservice.SynapseLanguageClientAPI;
+import org.eclipse.lemminx.customservice.synapse.inbound.conector.InboundConnectorHolder;
 import org.eclipse.lemminx.customservice.synapse.mediator.TryOutConstants;
 import org.eclipse.lemminx.customservice.synapse.utils.Constant;
 import org.eclipse.lemminx.customservice.synapse.utils.Utils;
@@ -41,9 +42,10 @@ public class NewProjectConnectorLoader extends AbstractConnectorLoader {
     private static final Logger log = Logger.getLogger(NewProjectConnectorLoader.class.getName());
     private String projectId;
 
-    public NewProjectConnectorLoader(SynapseLanguageClientAPI languageClient, ConnectorHolder connectorHolder) {
+    public NewProjectConnectorLoader(SynapseLanguageClientAPI languageClient, ConnectorHolder connectorHolder,
+                                     InboundConnectorHolder inboundConnectorHolder) {
 
-        super(languageClient, connectorHolder);
+        super(languageClient, connectorHolder, inboundConnectorHolder);
     }
 
     @Override

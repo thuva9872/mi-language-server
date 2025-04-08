@@ -43,7 +43,6 @@ public abstract class MediatorSerializerTest {
         Mediator mediator = (Mediator) factory.create(xmlDocument.getDocumentElement());
 
         String actual = serializer.serializeMediator(null, mediator).toString();
-        System.out.println(actual);
         assertEquals(valid, xml.equals(actual));
     }
 }
