@@ -54,6 +54,7 @@ public class ConnectorLoaderTest {
     public void setUp() throws IOException {
 
         connectorHolder = ConnectorHolder.getInstance();
+        connectorHolder.clearConnectors();
         InboundConnectorHolder inboundConnectorHolder = new InboundConnectorHolder();
         SynapseLanguageClientAPI mockLanguageClient = new MockXMLLanguageClient();
         tempPath = Files.createTempDirectory("mi-language-server-test-");
@@ -62,6 +63,7 @@ public class ConnectorLoaderTest {
     }
 
     @Test
+    @Order(0)
     public void testConnectorLoaderInit_WithNullProject() {
 
         assertThrowsExactly(InvalidConfigurationException.class, () -> connectorLoader.init(null),
@@ -69,6 +71,7 @@ public class ConnectorLoaderTest {
     }
 
     @Test
+    @Order(0)
     public void testConnectorLoaderInit_WithInvalidProject() {
 
         String path = Objects.requireNonNull(this.getClass().getResource("/synapse/invalid.project")).getPath();

@@ -66,7 +66,7 @@ public class ConnectorReaderTest {
     public void testInvalidConnector() {
 
         String connectorPath = Objects.requireNonNull(
-                this.getClass().getResource("/synapse/connectors/invalid-connector-0.1.0")).getPath();
+                this.getClass().getResource("/synapse/connectors/extracted/invalid-connector-0.1.0")).getPath();
         ConnectorReader connectorReader = new ConnectorReader();
         Connector connector = connectorReader.readConnector(connectorPath, StringUtils.EMPTY);
         assertNull(connector);
