@@ -84,8 +84,7 @@ public class ConnectorLoaderTest {
         String path = Objects.requireNonNull(this.getClass().getResource("/synapse/pom.parser/test_pom_parser"))
                 .getPath();
 
-        assertDoesNotThrow(() -> connectorLoader.init(path),
-                "Project root should be valid");
+        assertDoesNotThrow(() -> connectorLoader.init(path), "Project root should be valid");
     }
 
     @Test
@@ -172,9 +171,8 @@ public class ConnectorLoaderTest {
         assertNotNull(connectorHolder.getConnector("file"));
     }
 
-    private void loadConnector(String connectorPath, String... connectorPaths) throws IOException {
+    private void loadConnector(String... connectorPaths) throws IOException {
 
-        FileUtils.copyFileToDirectory(new File(connectorPath), tempPath.resolve("connectors").toFile());
         for (String path : connectorPaths) {
             FileUtils.copyFileToDirectory(new File(path), tempPath.resolve("connectors").toFile());
         }

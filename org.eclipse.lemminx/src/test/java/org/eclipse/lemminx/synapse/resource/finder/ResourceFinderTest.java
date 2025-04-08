@@ -155,7 +155,7 @@ public class ResourceFinderTest {
 
         List<String> localEntries = Arrays.asList(localEntryResources.getResources().get(0).getName(),
                 localEntryResources.getResources().get(1).getName());
-        assertEquals(2, localEntryResources.getResources().size());
+        assertEquals(4, localEntryResources.getResources().size());
         assertTrue(localEntries.contains("testLocalEntry") && localEntries.contains("HttpsCon"));
     }
 

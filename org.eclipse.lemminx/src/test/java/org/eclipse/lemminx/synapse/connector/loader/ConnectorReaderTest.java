@@ -37,7 +37,7 @@ public class ConnectorReaderTest {
     public void testValidConnector() {
 
         String connectorPath = Objects.requireNonNull(
-                this.getClass().getResource("/synapse/connectors/mi-connector-http-0.1.8")).getPath();
+                this.getClass().getResource("/synapse/connectors/extracted/mi-connector-http-0.1.8")).getPath();
         ConnectorReader connectorReader = new ConnectorReader();
         Connector connector = connectorReader.readConnector(connectorPath, StringUtils.EMPTY);
         assertNotNull(connector);

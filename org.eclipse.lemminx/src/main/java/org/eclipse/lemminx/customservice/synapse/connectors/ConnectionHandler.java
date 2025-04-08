@@ -88,7 +88,9 @@ public class ConnectionHandler {
                 DOMElement rootElement = document.getDocumentElement();
                 if (Constant.LOCAL_ENTRY.equalsIgnoreCase(rootElement.getNodeName()) && rootElement.hasChildNodes()) {
                     DOMElement connectionElement = Utils.getFirstElement(rootElement);
-                    return getUISchema(getConnector(connectionElement));
+                    if (connectionElement != null && connectionElement.getNodeName().contains(".")) {
+                        return getUISchema(getConnector(connectionElement));
+                    }
                 }
             }
         }
@@ -103,9 +105,11 @@ public class ConnectionHandler {
             String connectorName = connector.getConnectorName();
             String connectionType = connector.getParameter(Constant.CONNECTION_TYPE).getValue();
             JsonObject uiSchemaJson = getConnectionUiSchema(connectorName, connectionType);
-            connector.addParameter(new ConnectorParameter(Constant.CONNECTION_NAME,
-                    connector.getParameter(Constant.NAME).getValue()));
-            return UISchemaMapper.mapInputToUISchemaForConnector(connector, uiSchemaJson);
+            if (uiSchemaJson != null) {
+                connector.addParameter(new ConnectorParameter(Constant.CONNECTION_NAME,
+                        connector.getParameter(Constant.NAME).getValue()));
+                return UISchemaMapper.mapInputToUISchemaForConnector(connector, uiSchemaJson);
+            }
         }
         return null;
     }
