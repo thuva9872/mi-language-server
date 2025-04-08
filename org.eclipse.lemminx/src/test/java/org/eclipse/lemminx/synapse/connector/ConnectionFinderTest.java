@@ -29,6 +29,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.Map;
+import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -43,8 +44,8 @@ public class ConnectionFinderTest {
         connectorHolder = ConnectorHolder.getInstance();
 
         ConnectorReader connectorReader = new ConnectorReader();
-        String connectorPath =
-                this.getClass().getResource("/synapse/connectors/extracted/mi-connector-http-0.1.8").getPath();
+        String connectorPath = Objects.requireNonNull(
+                this.getClass().getResource("/synapse/connectors/extracted/mi-connector-http-0.1.8")).getPath();
         Connector connector = connectorReader.readConnector(connectorPath, StringUtils.EMPTY);
         connectorHolder.addConnector(connector);
     }
@@ -52,12 +53,13 @@ public class ConnectionFinderTest {
     @Test
     public void testConnectorConnection() {
 
-        String projectPath = this.getClass().getResource("/synapse/resource.finder/test_project").getPath();
+        String projectPath = Objects.requireNonNull(this.getClass().getResource("/synapse/connector.test/test_project"))
+                .getPath();
         Either<Connections, Map<String, Connections>> connectionsMapEither =
                 ConnectionFinder.findConnections(projectPath, "http", connectorHolder, false);
         assertNotNull(connectionsMapEither);
         Connections connections = connectionsMapEither.getLeft();
         assertNotNull(connections);
-        assertEquals(1, connections.getConnections().size());
+        assertEquals(2, connections.getConnections().size());
     }
 }

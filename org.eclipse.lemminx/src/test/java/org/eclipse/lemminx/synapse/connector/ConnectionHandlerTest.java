@@ -72,7 +72,7 @@ public class ConnectionHandlerTest {
     @Test
     public void testGetConnectionSchemaForValidConnectionFile() throws IOException {
 
-        String connectionPath = Objects.requireNonNull(this.getClass().getResource("/synapse/resource.finder/" +
+        String connectionPath = Objects.requireNonNull(this.getClass().getResource("/synapse/connector.test/" +
                         "test_project/src/main/wso2mi/artifacts/local-entries/HttpsCon.xml"))
                 .getPath();
         JsonObject connectionSchema = connectionHandler.getConnectionUiSchema(connectionPath);
@@ -82,7 +82,7 @@ public class ConnectionHandlerTest {
     @Test
     public void testGetConnectionSchemaForInvalidConnectionFile() throws IOException {
 
-        String connectionPath = Objects.requireNonNull(this.getClass().getResource("/synapse/resource.finder/" +
+        String connectionPath = Objects.requireNonNull(this.getClass().getResource("/synapse/connector.test/" +
                         "test_project/src/main/wso2mi/artifacts/local-entries/testLocalEntry.xml"))
                 .getPath();
         JsonObject connectionSchema = connectionHandler.getConnectionUiSchema(connectionPath);
@@ -92,7 +92,7 @@ public class ConnectionHandlerTest {
     @Test
     public void testGetConnectionSchemaForMissingConnector() throws IOException {
 
-        String connectionPath = Objects.requireNonNull(this.getClass().getResource("/synapse/resource.finder/" +
+        String connectionPath = Objects.requireNonNull(this.getClass().getResource("/synapse/connector.test/" +
                         "test_project/src/main/wso2mi/artifacts/local-entries/invalidConnectorConnection.xml"))
                 .getPath();
         JsonObject connectionSchema = connectionHandler.getConnectionUiSchema(connectionPath);
@@ -102,7 +102,7 @@ public class ConnectionHandlerTest {
     @Test
     public void testGetConnectionSchemaForWrongConnectionType() throws IOException {
 
-        String connectionPath = Objects.requireNonNull(this.getClass().getResource("/synapse/resource.finder/" +
+        String connectionPath = Objects.requireNonNull(this.getClass().getResource("/synapse/connector.test/" +
                 "test_project/src/main/wso2mi/artifacts/local-entries/invalidConnectionType.xml")).getPath();
         JsonObject connectionSchema = connectionHandler.getConnectionUiSchema(connectionPath);
         assertNull(connectionSchema);
