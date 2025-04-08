@@ -93,7 +93,7 @@ public class ConnectionHandlerTest {
     public void testGetConnectionSchemaForMissingConnector() throws IOException {
 
         String connectionPath = Objects.requireNonNull(this.getClass().getResource("/synapse/connector.test/" +
-                        "test_project/src/main/wso2mi/artifacts/local-entries/invalidConnectorConnection.xml"))
+                        "test_project/src/main/wso2mi/artifacts/local-entries/InvalidConnectorConnection.xml"))
                 .getPath();
         JsonObject connectionSchema = connectionHandler.getConnectionUiSchema(connectionPath);
         assertNull(connectionSchema);
@@ -103,7 +103,7 @@ public class ConnectionHandlerTest {
     public void testGetConnectionSchemaForWrongConnectionType() throws IOException {
 
         String connectionPath = Objects.requireNonNull(this.getClass().getResource("/synapse/connector.test/" +
-                "test_project/src/main/wso2mi/artifacts/local-entries/invalidConnectionType.xml")).getPath();
+                "test_project/src/main/wso2mi/artifacts/local-entries/InvalidConnectionType.xml")).getPath();
         JsonObject connectionSchema = connectionHandler.getConnectionUiSchema(connectionPath);
         assertNull(connectionSchema);
     }
