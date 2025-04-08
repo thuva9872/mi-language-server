@@ -196,6 +196,7 @@ public class MediatorHandler {
     protected Map<String, Object> processConnectorParameter(Object data) {
 
         Map<String, Object> dataValue = new HashMap<>();
+        boolean isExpressionField = false;
         if (data instanceof String) {
             dataValue.put(Constant.VALUE, String.format("%s", data));
         } else if (data instanceof Boolean) {
@@ -205,7 +206,9 @@ public class MediatorHandler {
             Object isExpressionObj = dataValue.get(Constant.IS_EXPRESSION);
             boolean isExpression = isExpressionObj == null ? false : (boolean) isExpressionObj;
             if (isExpression) {
+                isExpressionField = true;
                 dataValue.put(Constant.VALUE, String.format("{%s}", dataValue.get(Constant.VALUE)));
+                dataValue.put(Constant.IS_EXPRESSION, true);
             } else {
                 if (dataValue.get(Constant.VALUE).toString().startsWith("{") &&
                         dataValue.get(Constant.VALUE).toString().endsWith("}")) {
@@ -232,14 +235,26 @@ public class MediatorHandler {
             dataValue.put(Constant.VALUE, String.format("%s", dataValueStr));
         }
         if (dataValue.get(Constant.VALUE) != null && dataValue.get(Constant.VALUE).toString().startsWith("<![CDATA[")) {
-            dataValue.put("isCDATA", true);
+            dataValue.put(Constant.IS_CDATA, true);
             String value = dataValue.get(Constant.VALUE).toString().substring(9); // Remove <![CDATA[
             if (value.endsWith("]]>")) {
                 value = value.substring(0, value.length() - 3); // Remove ]]>
             }
             dataValue.put(Constant.VALUE, value);
         }
+        if (!isExpressionField && hasSpecialXmlCharacter(dataValue.get(Constant.VALUE))) {
+            dataValue.put(Constant.IS_CDATA, true);
+        }
         return dataValue;
+    }
+
+    private boolean hasSpecialXmlCharacter(Object o) {
+
+        if (!(o instanceof String)) {
+            return false;
+        }
+        String value = (String) o;
+        return value.contains("&") || value.contains("<") || value.contains(">") || value.contains("\"");
     }
 
     protected ConnectorAction getConnectorOperation(STNode node, String mediator) {
