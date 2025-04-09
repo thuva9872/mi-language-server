@@ -49,7 +49,7 @@ public class ScatterGatherMediator {
                                                                                            ScatterGather scatterGather,
                                                                                            List<String> dirtyFields) {
 
-        if(data.containsKey("newBranch") && Boolean.TRUE.equals(data.get("newBranch"))) {
+        if (data.containsKey("newBranch") && Boolean.TRUE.equals(data.get("newBranch"))) {
             return Either.forLeft(data);
         }
 
