@@ -75,9 +75,8 @@ public class ConnectorFactory extends AbstractMediatorFactory {
                     if (isExpression) {
                         parameter.setExpression(inline);
                     } else {
-                        parameter.setValue(inline);
+                        parameter.setValue(Utils.removeCDATATag(inline));
                     }
-                    parameter.setValue(Utils.getInlineString(childElement.getFirstChild()));
                     parameters.add(parameter);
                 }
             }

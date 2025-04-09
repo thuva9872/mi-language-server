@@ -87,7 +87,7 @@ public class UISchemaMapper {
                     } else if (isCheckBox(value)) {
                         currentValue = new JsonPrimitive(currentValue.getAsBoolean());
                     } else if (currentValue.isJsonPrimitive()) {
-                        String sanitizedValue = removeCDATATag(currentValue.getAsString());
+                        String sanitizedValue = Utils.removeCDATATag(currentValue.getAsString());
                         currentValue = new JsonPrimitive(sanitizedValue);
                     }
                     value.add("currentValue", currentValue);
@@ -106,7 +106,7 @@ public class UISchemaMapper {
 
     private static JsonArray generateTableDataForConnector(String tableFieldCDATA) {
 
-        String tableFieldValue = removeCDATATag(tableFieldCDATA);
+        String tableFieldValue = Utils.removeCDATATag(tableFieldCDATA);
         JsonArray result = new JsonArray();
         JSONArray tableValues = new JSONArray(tableFieldValue);
         for (int i = 0; i < tableValues.length(); i++) {
@@ -129,14 +129,6 @@ public class UISchemaMapper {
             }
         }
         return result;
-    }
-
-    private static String removeCDATATag(String value) {
-
-        if (StringUtils.isEmpty(value)) {
-            return StringUtils.EMPTY;
-        }
-        return value.replaceAll("<!\\[CDATA\\[", "").replaceAll("]]>", "");
     }
 
     public static JsonObject mapInputToUISchemaForConnector(Connector connector, JsonObject uiSchema) {
