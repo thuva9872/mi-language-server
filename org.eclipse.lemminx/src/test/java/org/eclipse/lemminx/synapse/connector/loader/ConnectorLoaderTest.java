@@ -33,10 +33,11 @@ import org.junit.jupiter.api.TestMethodOrder;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Objects;
 
+import static org.eclipse.lemminx.synapse.TestUtils.getResourceFilePath;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -72,9 +73,9 @@ public class ConnectorLoaderTest {
 
     @Test
     @Order(0)
-    public void testConnectorLoaderInit_WithInvalidProject() {
+    public void testConnectorLoaderInit_WithInvalidProject() throws URISyntaxException {
 
-        String path = Objects.requireNonNull(this.getClass().getResource("/synapse/invalid.project")).getPath();
+        String path = getResourceFilePath("/synapse/invalid.project");
 
         assertThrowsExactly(InvalidConfigurationException.class, () -> connectorLoader.init(path),
                 "Project root should be invalid");
@@ -82,10 +83,9 @@ public class ConnectorLoaderTest {
 
     @Test
     @Order(1)
-    public void testConnectorLoaderInit_WithValidProject() {
+    public void testConnectorLoaderInit_WithValidProject() throws URISyntaxException {
 
-        String path = Objects.requireNonNull(this.getClass().getResource("/synapse/pom.parser/test_pom_parser"))
-                .getPath();
+        String path = getResourceFilePath("/synapse/pom.parser/test_pom_parser");
 
         assertDoesNotThrow(() -> connectorLoader.init(path), "Project root should be valid");
     }
@@ -101,10 +101,9 @@ public class ConnectorLoaderTest {
 
     @Test
     @Order(3)
-    public void testConnectorLoading_AddingValidConnector() throws IOException {
+    public void testConnectorLoading_AddingValidConnector() throws IOException, URISyntaxException {
 
-        String connectorPath = Objects.requireNonNull(
-                this.getClass().getResource("/synapse/connectors/zips/mi-connector-http-0.1.8.zip")).getPath();
+        String connectorPath = getResourceFilePath("/synapse/connectors/zips/mi-connector-http-0.1.8.zip");
         loadConnector(connectorPath);
 
         assertEquals(1, connectorHolder.getConnectors().size());
@@ -113,10 +112,9 @@ public class ConnectorLoaderTest {
 
     @Test
     @Order(4)
-    public void testConnectorLoading_AddingInvalidConnector() throws IOException {
+    public void testConnectorLoading_AddingInvalidConnector() throws IOException, URISyntaxException {
 
-        String connectorPath = Objects.requireNonNull(
-                this.getClass().getResource("/synapse/connectors/zips/invalid-connector-0.1.0.zip")).getPath();
+        String connectorPath = getResourceFilePath("/synapse/connectors/zips/invalid-connector-0.1.0.zip");
         loadConnector(connectorPath);
 
         assertEquals(1, connectorHolder.getConnectors().size());
@@ -125,10 +123,9 @@ public class ConnectorLoaderTest {
 
     @Test
     @Order(5)
-    public void testConnectorLoading_AddingAnotherValidConnector() throws IOException {
+    public void testConnectorLoading_AddingAnotherValidConnector() throws IOException, URISyntaxException {
 
-        String connectorPath = Objects.requireNonNull(
-                this.getClass().getResource("/synapse/connectors/zips/mi-connector-file-4.0.36.zip")).getPath();
+        String connectorPath = getResourceFilePath("/synapse/connectors/zips/mi-connector-file-4.0.36.zip");
         loadConnector(connectorPath);
 
         assertEquals(2, connectorHolder.getConnectors().size());
@@ -161,12 +158,10 @@ public class ConnectorLoaderTest {
 
     @Test
     @Order(8)
-    public void testConnectorLoading_AddValidAndInvalidConnectorAtSameTime() throws IOException {
+    public void testConnectorLoading_AddValidAndInvalidConnectorAtSameTime() throws IOException, URISyntaxException {
 
-        String connectorPath1 = Objects.requireNonNull(
-                this.getClass().getResource("/synapse/connectors/zips/invalid-connector-0.1.0.zip")).getPath();
-        String connectorPath2 = Objects.requireNonNull(
-                this.getClass().getResource("/synapse/connectors/zips/mi-connector-http-0.1.8.zip")).getPath();
+        String connectorPath1 = getResourceFilePath("/synapse/connectors/zips/invalid-connector-0.1.0.zip");
+        String connectorPath2 = getResourceFilePath("/synapse/connectors/zips/mi-connector-http-0.1.8.zip");
         loadConnector(connectorPath1, connectorPath2);
 
         assertEquals(2, connectorHolder.getConnectors().size());

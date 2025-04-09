@@ -28,8 +28,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 
 import java.io.IOException;
-import java.util.Objects;
+import java.net.URISyntaxException;
 
+import static org.eclipse.lemminx.synapse.TestUtils.getResourceFilePath;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -40,11 +41,10 @@ public class ConnectionHandlerTest {
     ConnectionHandler connectionHandler;
 
     @BeforeAll
-    public void setUp() {
+    public void setUp() throws URISyntaxException {
 
         connectionHandler = new ConnectionHandler();
-        String connectorPath = Objects.requireNonNull(
-                this.getClass().getResource("/synapse/connectors/extracted/mi-connector-http-0.1.8")).getPath();
+        String connectorPath = getResourceFilePath("/synapse/connectors/extracted/mi-connector-http-0.1.8");
         ConnectorReader connectorReader = new ConnectorReader();
         Connector connection =
                 connectorReader.readConnector(connectorPath, null);
@@ -70,40 +70,37 @@ public class ConnectionHandlerTest {
     }
 
     @Test
-    public void testGetConnectionSchemaForValidConnectionFile() throws IOException {
+    public void testGetConnectionSchemaForValidConnectionFile() throws IOException, URISyntaxException {
 
-        String connectionPath = Objects.requireNonNull(this.getClass().getResource("/synapse/connector.test/" +
-                        "test_project/src/main/wso2mi/artifacts/local-entries/HttpsCon.xml"))
-                .getPath();
+        String connectionPath = getResourceFilePath(
+                "/synapse/connector.test/test_project/src/main/wso2mi/artifacts/local-entries/HttpsCon.xml");
         JsonObject connectionSchema = connectionHandler.getConnectionUiSchema(connectionPath);
         assertValidConnectionSchema(connectionSchema, "HTTPS");
     }
 
     @Test
-    public void testGetConnectionSchemaForInvalidConnectionFile() throws IOException {
+    public void testGetConnectionSchemaForInvalidConnectionFile() throws IOException, URISyntaxException {
 
-        String connectionPath = Objects.requireNonNull(this.getClass().getResource("/synapse/connector.test/" +
-                        "test_project/src/main/wso2mi/artifacts/local-entries/testLocalEntry.xml"))
-                .getPath();
+        String connectionPath = getResourceFilePath(
+                "/synapse/connector.test/test_project/src/main/wso2mi/artifacts/local-entries/testLocalEntry.xml");
         JsonObject connectionSchema = connectionHandler.getConnectionUiSchema(connectionPath);
         assertNull(connectionSchema);
     }
 
     @Test
-    public void testGetConnectionSchemaForMissingConnector() throws IOException {
+    public void testGetConnectionSchemaForMissingConnector() throws IOException, URISyntaxException {
 
-        String connectionPath = Objects.requireNonNull(this.getClass().getResource("/synapse/connector.test/" +
-                        "test_project/src/main/wso2mi/artifacts/local-entries/InvalidConnectorConnection.xml"))
-                .getPath();
+        String connectionPath = getResourceFilePath("/synapse/connector.test/" +
+                "test_project/src/main/wso2mi/artifacts/local-entries/InvalidConnectorConnection.xml");
         JsonObject connectionSchema = connectionHandler.getConnectionUiSchema(connectionPath);
         assertNull(connectionSchema);
     }
 
     @Test
-    public void testGetConnectionSchemaForWrongConnectionType() throws IOException {
+    public void testGetConnectionSchemaForWrongConnectionType() throws IOException, URISyntaxException {
 
-        String connectionPath = Objects.requireNonNull(this.getClass().getResource("/synapse/connector.test/" +
-                "test_project/src/main/wso2mi/artifacts/local-entries/InvalidConnectionType.xml")).getPath();
+        String connectionPath = getResourceFilePath(
+                "/synapse/connector.test/test_project/src/main/wso2mi/artifacts/local-entries/InvalidConnectionType.xml");
         JsonObject connectionSchema = connectionHandler.getConnectionUiSchema(connectionPath);
         assertNull(connectionSchema);
     }

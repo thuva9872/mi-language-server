@@ -28,9 +28,10 @@ import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.net.URISyntaxException;
 import java.util.Map;
-import java.util.Objects;
 
+import static org.eclipse.lemminx.synapse.TestUtils.getResourceFilePath;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
@@ -39,22 +40,20 @@ public class ConnectionFinderTest {
     private ConnectorHolder connectorHolder;
 
     @BeforeEach
-    public void setUp() {
+    public void setUp() throws URISyntaxException {
 
         connectorHolder = ConnectorHolder.getInstance();
 
         ConnectorReader connectorReader = new ConnectorReader();
-        String connectorPath = Objects.requireNonNull(
-                this.getClass().getResource("/synapse/connectors/extracted/mi-connector-http-0.1.8")).getPath();
+        String connectorPath = getResourceFilePath("/synapse/connectors/extracted/mi-connector-http-0.1.8");
         Connector connector = connectorReader.readConnector(connectorPath, StringUtils.EMPTY);
         connectorHolder.addConnector(connector);
     }
 
     @Test
-    public void testConnectorConnection() {
+    public void testConnectorConnection() throws URISyntaxException {
 
-        String projectPath = Objects.requireNonNull(this.getClass().getResource("/synapse/connector.test/test_project"))
-                .getPath();
+        String projectPath = getResourceFilePath("/synapse/connector.test/test_project");
         Either<Connections, Map<String, Connections>> connectionsMapEither =
                 ConnectionFinder.findConnections(projectPath, "http", connectorHolder, false);
         assertNotNull(connectionsMapEither);

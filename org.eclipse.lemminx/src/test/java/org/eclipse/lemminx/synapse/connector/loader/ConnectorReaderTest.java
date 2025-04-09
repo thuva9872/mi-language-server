@@ -24,8 +24,9 @@ import org.eclipse.lemminx.customservice.synapse.connectors.entity.Connector;
 import org.eclipse.lemminx.customservice.synapse.connectors.entity.ConnectorAction;
 import org.junit.jupiter.api.Test;
 
-import java.util.Objects;
+import java.net.URISyntaxException;
 
+import static org.eclipse.lemminx.synapse.TestUtils.getResourceFilePath;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -34,10 +35,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class ConnectorReaderTest {
 
     @Test
-    public void testValidConnector() {
+    public void testValidConnector() throws URISyntaxException {
 
-        String connectorPath = Objects.requireNonNull(
-                this.getClass().getResource("/synapse/connectors/extracted/mi-connector-http-0.1.8")).getPath();
+        String connectorPath = getResourceFilePath("/synapse/connectors/extracted/mi-connector-http-0.1.8");
         ConnectorReader connectorReader = new ConnectorReader();
         Connector connector = connectorReader.readConnector(connectorPath, StringUtils.EMPTY);
         assertNotNull(connector);
@@ -63,10 +63,9 @@ public class ConnectorReaderTest {
     }
 
     @Test
-    public void testInvalidConnector() {
+    public void testInvalidConnector() throws URISyntaxException {
 
-        String connectorPath = Objects.requireNonNull(
-                this.getClass().getResource("/synapse/connectors/extracted/invalid-connector-0.1.0")).getPath();
+        String connectorPath = getResourceFilePath("/synapse/connectors/extracted/invalid-connector-0.1.0");
         ConnectorReader connectorReader = new ConnectorReader();
         Connector connector = connectorReader.readConnector(connectorPath, StringUtils.EMPTY);
         assertNull(connector);
