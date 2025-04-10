@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024, WSO2 LLC. (http://www.wso2.com).
+ * Copyright (c) 2025, WSO2 LLC. (http://www.wso2.com).
  *
  * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -16,25 +16,19 @@
  * under the License.
  */
 
-package org.eclipse.lemminx.customservice.synapse.debugger.entity.debuginfo;
+package org.eclipse.lemminx.synapse.debugger.mediators;
 
-import com.google.gson.JsonElement;
+import org.eclipse.lemminx.synapse.debugger.AbstractDebuggerTest;
 
-public class InboundDebugInfo extends DebugInfo {
+public abstract class AbstractMediatorDebuggerTest extends AbstractDebuggerTest {
 
-    @Override
-    public JsonElement toJson() {
-
-        return null;
-    }
+    private String MEDIATOR_RESOURCE_FOLDER = "/synapse/debugger/mediators/";
 
     @Override
-    public String toString() {
+    protected String getResourcePath() {
 
-        return "InboundDebugInfo{" +
-                "mediatorPosition='" + mediatorPosition + '\'' +
-                ", isValid=" + isValid +
-                ", error='" + error + '\'' +
-                '}';
+        return MEDIATOR_RESOURCE_FOLDER + getTestResourceName();
     }
+
+    protected abstract String getTestResourceName();
 }

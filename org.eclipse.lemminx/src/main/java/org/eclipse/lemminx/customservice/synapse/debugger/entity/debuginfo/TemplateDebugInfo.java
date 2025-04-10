@@ -30,6 +30,11 @@ public class TemplateDebugInfo extends DebugInfo {
         this.templateKey = templateKey;
     }
 
+    public String getTemplateKey() {
+
+        return templateKey;
+    }
+
     @Override
     public JsonElement toJson() {
 
@@ -42,5 +47,16 @@ public class TemplateDebugInfo extends DebugInfo {
         rootNode.addProperty("mediation-component", "template");
 
         return rootNode;
+    }
+
+    @Override
+    public String toString() {
+
+        return "TemplateDebugInfo{" +
+                "templateKey='" + templateKey + '\'' +
+                ", mediatorPosition='" + mediatorPosition + '\'' +
+                ", isValid=" + isValid +
+                ", error='" + error + '\'' +
+                '}';
     }
 }

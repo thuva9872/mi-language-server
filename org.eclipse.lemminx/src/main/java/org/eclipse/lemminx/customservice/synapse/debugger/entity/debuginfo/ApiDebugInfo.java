@@ -54,6 +54,31 @@ public class ApiDebugInfo extends DebugInfo {
         this.urlMapping = urlMapping;
     }
 
+    public String getApiKey() {
+
+        return apiKey;
+    }
+
+    public String getMethod() {
+
+        return method;
+    }
+
+    public String getUriTemplate() {
+
+        return uriTemplate;
+    }
+
+    public String getUrlMapping() {
+
+        return urlMapping;
+    }
+
+    public String getSequenceType() {
+
+        return sequenceType;
+    }
+
     public JsonElement toJson() {
 
         JsonObject rootNode = new JsonObject();
@@ -75,5 +100,20 @@ public class ApiDebugInfo extends DebugInfo {
 
         rootNode.addProperty("mediation-component", "sequence");
         return rootNode;
+    }
+
+    @Override
+    public String toString() {
+
+        return "ApiDebugInfo{" +
+                "apiKey='" + apiKey + '\'' +
+                ", method='" + method + '\'' +
+                ", uriTemplate='" + uriTemplate + '\'' +
+                ", urlMapping='" + urlMapping + '\'' +
+                ", sequenceType='" + sequenceType + '\'' +
+                ", mediatorPosition='" + mediatorPosition + '\'' +
+                ", isValid=" + isValid +
+                ", error='" + error + '\'' +
+                '}';
     }
 }

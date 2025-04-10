@@ -45,4 +45,15 @@ public class SequenceDebugInfo extends DebugInfo {
 
         return rootNode;
     }
+
+    @Override
+    public String toString() {
+
+        return "SequenceDebugInfo{" +
+                "sequenceKey='" + sequenceKey + '\'' +
+                ", mediatorPosition='" + mediatorPosition + '\'' +
+                ", isValid=" + isValid +
+                ", error='" + error + '\'' +
+                '}';
+    }
 }
