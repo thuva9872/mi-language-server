@@ -375,7 +375,7 @@ public abstract class DOMNode implements Node, DOMRange {
 		}
 		// remove quote
 		char c = value.charAt(0);
-		if (c == '"' || c == '\'') {
+		if ((c == '"' || c == '\'') && value.length() > 1) {
 			if (value.charAt(value.length() - 1) == c) {
 				return value.substring(1, value.length() - 1);
 			}
