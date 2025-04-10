@@ -45,7 +45,7 @@ public class ConnectionFinderTest {
         connectorHolder = ConnectorHolder.getInstance();
 
         ConnectorReader connectorReader = new ConnectorReader();
-        String connectorPath = getResourceFilePath("/synapse/connectors/extracted/mi-connector-http-0.1.8");
+        String connectorPath = getResourceFilePath("/synapse/connector/extracted/mi-connector-http-0.1.8");
         Connector connector = connectorReader.readConnector(connectorPath, StringUtils.EMPTY);
         connectorHolder.addConnector(connector);
     }

@@ -44,7 +44,7 @@ public class ConnectionHandlerTest {
     public void setUp() throws URISyntaxException {
 
         connectionHandler = new ConnectionHandler();
-        String connectorPath = getResourceFilePath("/synapse/connectors/extracted/mi-connector-http-0.1.8");
+        String connectorPath = getResourceFilePath("/synapse/connector/extracted/mi-connector-http-0.1.8");
         ConnectorReader connectorReader = new ConnectorReader();
         Connector connection = connectorReader.readConnector(connectorPath, null);
         ConnectorHolder.getInstance().addConnector(connection);
