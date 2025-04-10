@@ -101,7 +101,7 @@ public class ConnectorLoaderTest {
 
     @Test
     @Order(3)
-    public void testConnectorLoading_AddingValidConnector() throws IOException, URISyntaxException {
+    public void testConnectorLoading_AddingValidConnector() throws Exception {
 
         String connectorPath = getResourceFilePath("/synapse/connectors/zips/mi-connector-http-0.1.8.zip");
         loadConnector(connectorPath);
@@ -112,7 +112,7 @@ public class ConnectorLoaderTest {
 
     @Test
     @Order(4)
-    public void testConnectorLoading_AddingInvalidConnector() throws IOException, URISyntaxException {
+    public void testConnectorLoading_AddingInvalidConnector() throws Exception {
 
         String connectorPath = getResourceFilePath("/synapse/connectors/zips/invalid-connector-0.1.0.zip");
         loadConnector(connectorPath);
@@ -123,7 +123,7 @@ public class ConnectorLoaderTest {
 
     @Test
     @Order(5)
-    public void testConnectorLoading_AddingAnotherValidConnector() throws IOException, URISyntaxException {
+    public void testConnectorLoading_AddingAnotherValidConnector() throws Exception {
 
         String connectorPath = getResourceFilePath("/synapse/connectors/zips/mi-connector-file-4.0.36.zip");
         loadConnector(connectorPath);
@@ -158,7 +158,7 @@ public class ConnectorLoaderTest {
 
     @Test
     @Order(8)
-    public void testConnectorLoading_AddValidAndInvalidConnectorAtSameTime() throws IOException, URISyntaxException {
+    public void testConnectorLoading_AddValidAndInvalidConnectorAtSameTime() throws Exception {
 
         String connectorPath1 = getResourceFilePath("/synapse/connectors/zips/invalid-connector-0.1.0.zip");
         String connectorPath2 = getResourceFilePath("/synapse/connectors/zips/mi-connector-http-0.1.8.zip");

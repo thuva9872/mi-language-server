@@ -46,8 +46,7 @@ public class ConnectionHandlerTest {
         connectionHandler = new ConnectionHandler();
         String connectorPath = getResourceFilePath("/synapse/connectors/extracted/mi-connector-http-0.1.8");
         ConnectorReader connectorReader = new ConnectorReader();
-        Connector connection =
-                connectorReader.readConnector(connectorPath, null);
+        Connector connection = connectorReader.readConnector(connectorPath, null);
         ConnectorHolder.getInstance().addConnector(connection);
         connectionHandler.init(ConnectorHolder.getInstance());
     }
@@ -70,37 +69,37 @@ public class ConnectionHandlerTest {
     }
 
     @Test
-    public void testGetConnectionSchemaForValidConnectionFile() throws IOException, URISyntaxException {
+    public void testGetConnectionSchemaForValidConnectionFile() throws Exception {
 
         String connectionPath = getResourceFilePath(
-                "/synapse/connector.test/test_project/src/main/wso2mi/artifacts/local-entries/HttpsCon.xml");
+                "/synapse/connector/test_project/src/main/wso2mi/artifacts/local-entries/HttpsCon.xml");
         JsonObject connectionSchema = connectionHandler.getConnectionUiSchema(connectionPath);
         assertValidConnectionSchema(connectionSchema, "HTTPS");
     }
 
     @Test
-    public void testGetConnectionSchemaForInvalidConnectionFile() throws IOException, URISyntaxException {
+    public void testGetConnectionSchemaForInvalidConnectionFile() throws Exception {
 
         String connectionPath = getResourceFilePath(
-                "/synapse/connector.test/test_project/src/main/wso2mi/artifacts/local-entries/testLocalEntry.xml");
+                "/synapse/connector/test_project/src/main/wso2mi/artifacts/local-entries/testLocalEntry.xml");
         JsonObject connectionSchema = connectionHandler.getConnectionUiSchema(connectionPath);
         assertNull(connectionSchema);
     }
 
     @Test
-    public void testGetConnectionSchemaForMissingConnector() throws IOException, URISyntaxException {
+    public void testGetConnectionSchemaForMissingConnector() throws Exception {
 
-        String connectionPath = getResourceFilePath("/synapse/connector.test/" +
+        String connectionPath = getResourceFilePath("/synapse/connector/" +
                 "test_project/src/main/wso2mi/artifacts/local-entries/InvalidConnectorConnection.xml");
         JsonObject connectionSchema = connectionHandler.getConnectionUiSchema(connectionPath);
         assertNull(connectionSchema);
     }
 
     @Test
-    public void testGetConnectionSchemaForWrongConnectionType() throws IOException, URISyntaxException {
+    public void testGetConnectionSchemaForWrongConnectionType() throws Exception {
 
         String connectionPath = getResourceFilePath(
-                "/synapse/connector.test/test_project/src/main/wso2mi/artifacts/local-entries/InvalidConnectionType.xml");
+                "/synapse/connector/test_project/src/main/wso2mi/artifacts/local-entries/InvalidConnectionType.xml");
         JsonObject connectionSchema = connectionHandler.getConnectionUiSchema(connectionPath);
         assertNull(connectionSchema);
     }

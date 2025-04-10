@@ -53,7 +53,7 @@ public class ConnectionFinderTest {
     @Test
     public void testConnectorConnection() throws URISyntaxException {
 
-        String projectPath = getResourceFilePath("/synapse/connector.test/test_project");
+        String projectPath = getResourceFilePath("/synapse/connector/test_project");
         Either<Connections, Map<String, Connections>> connectionsMapEither =
                 ConnectionFinder.findConnections(projectPath, "http", connectorHolder, false);
         assertNotNull(connectionsMapEither);

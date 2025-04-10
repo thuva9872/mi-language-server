@@ -22,9 +22,15 @@ import org.apache.commons.lang3.StringUtils;
 import org.eclipse.lemminx.customservice.synapse.connectors.ConnectorReader;
 import org.eclipse.lemminx.customservice.synapse.connectors.entity.Connector;
 import org.eclipse.lemminx.customservice.synapse.connectors.entity.ConnectorAction;
+import org.eclipse.lemminx.customservice.synapse.utils.Constant;
+import org.eclipse.lemminx.customservice.synapse.utils.Utils;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 
-import java.net.URISyntaxException;
+import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 import static org.eclipse.lemminx.synapse.TestUtils.getResourceFilePath;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -32,12 +38,32 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class ConnectorReaderTest {
 
-    @Test
-    public void testValidConnector() throws URISyntaxException {
+    private Path tempPath;
 
-        String connectorPath = getResourceFilePath("/synapse/connectors/extracted/mi-connector-http-0.1.8");
+    @BeforeAll
+    void setUp() throws Exception {
+
+        tempPath = Files.createTempDirectory("connector-reader-test-");
+        String connectorZipFolder = getResourceFilePath("/synapse/connector/zips");
+        File connectorZipFolderFile = new File(connectorZipFolder);
+        File[] connectorZipFiles = connectorZipFolderFile.listFiles();
+        assert connectorZipFiles != null;
+        for (File zip : connectorZipFiles) {
+            String zipName = zip.getName();
+            zipName = zipName.substring(0, zipName.lastIndexOf(Constant.DOT));
+            Utils.extractZip(zip, tempPath.resolve(zipName).toFile());
+        }
+    }
+
+    @Test
+    public void testValidConnector() {
+
+        String connectorPath = tempPath.resolve("mi-connector-http-0.1.8").toString();
+        System.out.println("Connector path: " + connectorPath);
+        System.out.println("File exists:" + new File(connectorPath).exists());
         ConnectorReader connectorReader = new ConnectorReader();
         Connector connector = connectorReader.readConnector(connectorPath, StringUtils.EMPTY);
         assertNotNull(connector);
@@ -63,9 +89,9 @@ public class ConnectorReaderTest {
     }
 
     @Test
-    public void testInvalidConnector() throws URISyntaxException {
+    public void testInvalidConnector() {
 
-        String connectorPath = getResourceFilePath("/synapse/connectors/extracted/invalid-connector-0.1.0");
+        String connectorPath = tempPath.resolve("invalid-connector-0.1.0").toString();
         ConnectorReader connectorReader = new ConnectorReader();
         Connector connector = connectorReader.readConnector(connectorPath, StringUtils.EMPTY);
         assertNull(connector);
