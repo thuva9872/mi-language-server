@@ -23,12 +23,15 @@ import org.eclipse.lemminx.customservice.synapse.connectors.ConnectionHandler;
 import org.eclipse.lemminx.customservice.synapse.connectors.ConnectorHolder;
 import org.eclipse.lemminx.customservice.synapse.connectors.ConnectorReader;
 import org.eclipse.lemminx.customservice.synapse.connectors.entity.Connector;
+import org.eclipse.lemminx.synapse.TestUtils;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 import static org.eclipse.lemminx.synapse.TestUtils.getResourceFilePath;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -41,10 +44,13 @@ public class ConnectionHandlerTest {
     ConnectionHandler connectionHandler;
 
     @BeforeAll
-    public void setUp() throws URISyntaxException {
+    public void setUp() throws Exception {
+
+        Path tempPath = Files.createTempDirectory("connector-reader-test-");
+        TestUtils.extractConnectorZips(tempPath, "/synapse/connector/zips");
 
         connectionHandler = new ConnectionHandler();
-        String connectorPath = getResourceFilePath("/synapse/connector/extracted/mi-connector-http-0.1.8");
+        String connectorPath = tempPath.resolve("mi-connector-http-0.1.8").toString();
         ConnectorReader connectorReader = new ConnectorReader();
         Connector connection = connectorReader.readConnector(connectorPath, null);
         ConnectorHolder.getInstance().addConnector(connection);

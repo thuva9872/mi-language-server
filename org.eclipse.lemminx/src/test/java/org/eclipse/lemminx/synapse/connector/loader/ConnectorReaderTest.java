@@ -24,6 +24,7 @@ import org.eclipse.lemminx.customservice.synapse.connectors.entity.Connector;
 import org.eclipse.lemminx.customservice.synapse.connectors.entity.ConnectorAction;
 import org.eclipse.lemminx.customservice.synapse.utils.Constant;
 import org.eclipse.lemminx.customservice.synapse.utils.Utils;
+import org.eclipse.lemminx.synapse.TestUtils;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -47,15 +48,7 @@ public class ConnectorReaderTest {
     void setUp() throws Exception {
 
         tempPath = Files.createTempDirectory("connector-reader-test-");
-        String connectorZipFolder = getResourceFilePath("/synapse/connector/zips");
-        File connectorZipFolderFile = new File(connectorZipFolder);
-        File[] connectorZipFiles = connectorZipFolderFile.listFiles();
-        assert connectorZipFiles != null;
-        for (File zip : connectorZipFiles) {
-            String zipName = zip.getName();
-            zipName = zipName.substring(0, zipName.lastIndexOf(Constant.DOT));
-            Utils.extractZip(zip, tempPath.resolve(zipName).toFile());
-        }
+        TestUtils.extractConnectorZips(tempPath, "/synapse/connector/zips");
     }
 
     @Test

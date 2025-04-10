@@ -18,8 +18,14 @@
 
 package org.eclipse.lemminx.synapse;
 
+import org.eclipse.lemminx.customservice.synapse.utils.Constant;
+import org.eclipse.lemminx.customservice.synapse.utils.Utils;
+
+import java.io.File;
+import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Objects;
 
@@ -29,5 +35,18 @@ public class TestUtils {
 
         URL url = Objects.requireNonNull(TestUtils.class.getResource(resourcePath));
         return Paths.get(url.toURI()).toAbsolutePath().toString();
+    }
+
+    public static void extractConnectorZips(Path extractFolder, String resourcePath) throws Exception {
+
+        String connectorZipFolder = getResourceFilePath(resourcePath);
+        File connectorZipFolderFile = new File(connectorZipFolder);
+        File[] connectorZipFiles = connectorZipFolderFile.listFiles();
+        assert connectorZipFiles != null;
+        for (File zip : connectorZipFiles) {
+            String zipName = zip.getName();
+            zipName = zipName.substring(0, zipName.lastIndexOf(Constant.DOT));
+            Utils.extractZip(zip, extractFolder.resolve(zipName).toFile());
+        }
     }
 }
