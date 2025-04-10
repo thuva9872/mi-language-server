@@ -103,7 +103,7 @@ public class ConnectorLoaderTest {
     @Order(3)
     public void testConnectorLoading_AddingValidConnector() throws Exception {
 
-        String connectorPath = getResourceFilePath("/synapse/connectors/zips/mi-connector-http-0.1.8.zip");
+        String connectorPath = getResourceFilePath("/synapse/connector/zips/mi-connector-http-0.1.8.zip");
         loadConnector(connectorPath);
 
         assertEquals(1, connectorHolder.getConnectors().size());
@@ -114,7 +114,7 @@ public class ConnectorLoaderTest {
     @Order(4)
     public void testConnectorLoading_AddingInvalidConnector() throws Exception {
 
-        String connectorPath = getResourceFilePath("/synapse/connectors/zips/invalid-connector-0.1.0.zip");
+        String connectorPath = getResourceFilePath("/synapse/connector/zips/invalid-connector-0.1.0.zip");
         loadConnector(connectorPath);
 
         assertEquals(1, connectorHolder.getConnectors().size());
@@ -125,7 +125,7 @@ public class ConnectorLoaderTest {
     @Order(5)
     public void testConnectorLoading_AddingAnotherValidConnector() throws Exception {
 
-        String connectorPath = getResourceFilePath("/synapse/connectors/zips/mi-connector-file-4.0.36.zip");
+        String connectorPath = getResourceFilePath("/synapse/connector/zips/mi-connector-file-4.0.36.zip");
         loadConnector(connectorPath);
 
         assertEquals(2, connectorHolder.getConnectors().size());
@@ -160,8 +160,8 @@ public class ConnectorLoaderTest {
     @Order(8)
     public void testConnectorLoading_AddValidAndInvalidConnectorAtSameTime() throws Exception {
 
-        String connectorPath1 = getResourceFilePath("/synapse/connectors/zips/invalid-connector-0.1.0.zip");
-        String connectorPath2 = getResourceFilePath("/synapse/connectors/zips/mi-connector-http-0.1.8.zip");
+        String connectorPath1 = getResourceFilePath("/synapse/connector/zips/invalid-connector-0.1.0.zip");
+        String connectorPath2 = getResourceFilePath("/synapse/connector/zips/mi-connector-http-0.1.8.zip");
         loadConnector(connectorPath1, connectorPath2);
 
         assertEquals(2, connectorHolder.getConnectors().size());
