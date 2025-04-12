@@ -61,6 +61,7 @@ import org.eclipse.lemminx.customservice.synapse.inbound.conector.InboundConnect
 import org.eclipse.lemminx.customservice.synapse.dependency.tree.DependencyScanner;
 import org.eclipse.lemminx.customservice.synapse.dependency.tree.pojo.DependencyTree;
 import org.eclipse.lemminx.customservice.synapse.mediator.tryout.TryOutManager;
+import org.eclipse.lemminx.customservice.synapse.InvalidConfigurationException;
 import org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.MediatorTryoutRequest;
 import org.eclipse.lemminx.customservice.synapse.mediatorService.MediatorHandler;
 import org.eclipse.lemminx.customservice.synapse.mediatorService.pojo.MediatorRequest;
@@ -176,12 +177,12 @@ public class SynapseLanguageService implements ISynapseLanguageService {
             this.projectUri = projectUri;
             this.isLegacyProject = Utils.isLegacyProject(projectUri);
             this.projectServerVersion = Utils.getServerVersion(projectUri, Constant.DEFAULT_MI_VERSION);
-            inboundConnectorHolder.init(projectUri, projectServerVersion);
-            initializeConnectorLoader();
-            mediatorHandler.init(projectUri, projectServerVersion, connectorHolder);
-            connectionHandler.init(connectorHolder);
-            MediatorFactoryFinder.init(projectServerVersion, projectUri, connectorHolder);
             try {
+                inboundConnectorHolder.init(projectUri, projectServerVersion);
+                initializeConnectorLoader();
+                mediatorHandler.init(projectUri, projectServerVersion, connectorHolder);
+                connectionHandler.init(connectorHolder);
+                MediatorFactoryFinder.init(projectServerVersion, projectUri, connectorHolder);
                 DynamicClassLoader.updateClassLoader(Path.of(projectUri, "deployment", "libs").toFile());
                 this.tryOutManager = new TryOutManager(projectUri, miServerPath, connectorHolder);
             } catch (Exception e) {
@@ -194,11 +195,12 @@ public class SynapseLanguageService implements ISynapseLanguageService {
         resourceFinder = ResourceFinderFactory.getResourceFinder(isLegacyProject);
     }
 
-    private void initializeConnectorLoader() {
+    private void initializeConnectorLoader() throws InvalidConfigurationException {
+
         if (isLegacyProject) {
             connectorLoader = new OldProjectConnectorLoader(languageClient, connectorHolder);
         } else {
-            connectorLoader = new NewProjectConnectorLoader(languageClient, connectorHolder);
+            connectorLoader = new NewProjectConnectorLoader(languageClient, connectorHolder, inboundConnectorHolder);
         }
         connectorLoader.init(projectUri);
         updateConnectorDependencies();
@@ -284,7 +286,7 @@ public class SynapseLanguageService implements ISynapseLanguageService {
 
     public void updateConnectors() {
 
-        connectorLoader.loadConnector(inboundConnectorHolder);
+        connectorLoader.loadConnector();
         if (mediatorHandler.isInitialized()) {
             mediatorHandler.reloadMediatorList(projectServerVersion);
         }

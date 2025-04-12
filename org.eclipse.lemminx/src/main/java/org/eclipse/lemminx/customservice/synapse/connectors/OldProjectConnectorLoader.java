@@ -33,7 +33,7 @@ public class OldProjectConnectorLoader extends AbstractConnectorLoader {
 
     public OldProjectConnectorLoader(SynapseLanguageClientAPI languageClient, ConnectorHolder connectorHolder) {
 
-        super(languageClient, connectorHolder);
+        super(languageClient, connectorHolder, null);
     }
 
     @Override

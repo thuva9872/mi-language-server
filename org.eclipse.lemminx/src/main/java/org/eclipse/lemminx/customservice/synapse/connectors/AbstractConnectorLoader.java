@@ -22,6 +22,7 @@ import org.eclipse.lemminx.customservice.SynapseLanguageClientAPI;
 import org.eclipse.lemminx.customservice.synapse.ConnectorStatusNotification;
 import org.eclipse.lemminx.customservice.synapse.connectors.entity.Connector;
 import org.eclipse.lemminx.customservice.synapse.inbound.conector.InboundConnectorHolder;
+import org.eclipse.lemminx.customservice.synapse.InvalidConfigurationException;
 import org.eclipse.lemminx.customservice.synapse.utils.Constant;
 import org.eclipse.lemminx.customservice.synapse.utils.Utils;
 
@@ -45,20 +46,26 @@ public abstract class AbstractConnectorLoader {
     private static final Logger log = Logger.getLogger(AbstractConnectorLoader.class.getName());
     private SynapseLanguageClientAPI languageClient;
     protected ConnectorHolder connectorHolder;
+    protected InboundConnectorHolder inboundConnectorHolder;
     private ConnectorReader connectorReader;
     protected List<String> connectorsZipFolderPath = new ArrayList<>();
     private File connectorExtractFolder;
     protected String projectUri;
 
-    public AbstractConnectorLoader(SynapseLanguageClientAPI languageClient, ConnectorHolder connectorHolder) {
+    public AbstractConnectorLoader(SynapseLanguageClientAPI languageClient, ConnectorHolder connectorHolder,
+                                   InboundConnectorHolder inboundConnectorHolder) {
 
         this.languageClient = languageClient;
         this.connectorHolder = connectorHolder;
+        this.inboundConnectorHolder = inboundConnectorHolder;
         this.connectorReader = new ConnectorReader();
     }
 
-    public void init(String projectRoot) {
+    public void init(String projectRoot) throws InvalidConfigurationException {
 
+        if (!Utils.isValidProject(projectRoot)) {
+            throw new InvalidConfigurationException("Invalid MI project root");
+        }
         setConnectorsZipFolderPath(projectRoot);
         setProjectUri(projectRoot);
         connectorExtractFolder = getConnectorExtractFolder();
@@ -66,14 +73,14 @@ public abstract class AbstractConnectorLoader {
 
     protected abstract void setConnectorsZipFolderPath(String projectRoot);
 
-    public void loadConnector(InboundConnectorHolder inboundConnectorHolder) {
+    public void loadConnector() {
 
         if (canContinue(connectorExtractFolder)) {
             List<File> connectorZips = getConnectorZips();
             connectorHolder.setConnectorZips(Collections.unmodifiableList(connectorZips));
             cleanOldConnectors(connectorExtractFolder, connectorZips);
             copyToProjectIfNeeded(connectorZips);
-            extractZips(connectorZips, connectorExtractFolder, inboundConnectorHolder);
+            extractZips(connectorZips, connectorExtractFolder);
             readConnectors(connectorExtractFolder);
         }
     }
@@ -111,7 +118,7 @@ public abstract class AbstractConnectorLoader {
 
     }
 
-    private void extractZips(List<File> connectorZips, File extractFolder, InboundConnectorHolder inboundConnectorHolder) {
+    private void extractZips(List<File> connectorZips, File extractFolder) {
 
         File[] tempFiles = extractFolder.listFiles();
         List<String> tempConnectorNames =

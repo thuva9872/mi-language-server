@@ -27,7 +27,7 @@ import org.eclipse.lemminx.customservice.synapse.connectors.entity.TestConnectio
 import org.eclipse.lemminx.customservice.synapse.mediator.TryOutConstants;
 import org.eclipse.lemminx.customservice.synapse.mediator.TryOutUtils;
 import org.eclipse.lemminx.customservice.synapse.mediator.tryout.TryOutHandler;
-import org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.InvalidConfigurationException;
+import org.eclipse.lemminx.customservice.synapse.InvalidConfigurationException;
 import org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.MediatorInfo;
 import org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.MediatorTryoutInfo;
 import org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.MediatorTryoutRequest;
@@ -48,8 +48,6 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import static org.eclipse.lemminx.customservice.synapse.mediator.TryOutConstants.TEMP_FOLDER_PATH;
 
 public class ConnectionTester {
 

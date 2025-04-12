@@ -22,7 +22,7 @@ import org.eclipse.lemminx.customservice.synapse.dependency.tree.DependencyLookU
 import org.eclipse.lemminx.customservice.synapse.dependency.tree.pojo.Dependency;
 import org.eclipse.lemminx.customservice.synapse.dependency.tree.visitor.MediatorDependencyVisitor;
 import org.eclipse.lemminx.customservice.synapse.mediator.TryOutUtils;
-import org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.InvalidConfigurationException;
+import org.eclipse.lemminx.customservice.synapse.InvalidConfigurationException;
 import org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.MediatorTryoutInfo;
 import org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.MediatorTryoutRequest;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.mediators.MediatorFactoryFinder;
