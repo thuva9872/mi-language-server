@@ -37,31 +37,31 @@ public class ForeachMediatorTest extends AbstractMediatorDebuggerTest {
 
         Breakpoint breakpoint = new Breakpoint(23, 4);
         testDebugInfo(List.of(breakpoint), List.of("1"));
-        testStepOverInfo(breakpoint, List.of(new Breakpoint(25, 12)));
+        testStepOverInfo(breakpoint, List.of(new Breakpoint(26, 12)));
     }
 
     @Test
     public void testMediatorInForeachSequence() throws Exception {
 
-        Breakpoint breakpoint = new Breakpoint(25, 12);
+        Breakpoint breakpoint = new Breakpoint(26, 12);
         testDebugInfo(List.of(breakpoint), List.of("1 0"));
-        testStepOverInfo(breakpoint, List.of(new Breakpoint(28, 12)));
+        testStepOverInfo(breakpoint, List.of(new Breakpoint(29, 12)));
     }
 
     @Test
     public void testNestedForeachInForeachSequence() throws Exception {
 
-        Breakpoint breakpoint = new Breakpoint(28, 12);
+        Breakpoint breakpoint = new Breakpoint(29, 12);
         testDebugInfo(List.of(breakpoint), List.of("1 1"));
-        testStepOverInfo(breakpoint, List.of(new Breakpoint(30, 20)));
+        testStepOverInfo(breakpoint, List.of(new Breakpoint(32, 20)));
     }
 
     @Test
     public void testForeachSequenceOfNestedForeach() throws Exception {
 
-        Breakpoint breakpoint = new Breakpoint(30, 20);
+        Breakpoint breakpoint = new Breakpoint(32, 20);
         testDebugInfo(List.of(breakpoint), List.of("1 1 0"));
-        testStepOverInfo(breakpoint, List.of(new Breakpoint(37, 4)));
+        testStepOverInfo(breakpoint, List.of(new Breakpoint(39, 4)));
     }
 
     @Test
@@ -73,13 +73,13 @@ public class ForeachMediatorTest extends AbstractMediatorDebuggerTest {
         breakpoints.add(new Breakpoint(23, 4));
         expected.add("1");
 
-        breakpoints.add(new Breakpoint(25, 12));
+        breakpoints.add(new Breakpoint(26, 12));
         expected.add("1 0");
 
-        breakpoints.add(new Breakpoint(28, 12));
+        breakpoints.add(new Breakpoint(29, 12));
         expected.add("1 1");
 
-        breakpoints.add(new Breakpoint(30, 20));
+        breakpoints.add(new Breakpoint(32, 20));
         expected.add("1 1 0");
 
         testDebugInfo(breakpoints, expected);
