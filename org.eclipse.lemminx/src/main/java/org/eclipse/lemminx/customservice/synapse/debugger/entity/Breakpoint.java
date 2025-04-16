@@ -18,6 +18,8 @@
 
 package org.eclipse.lemminx.customservice.synapse.debugger.entity;
 
+import java.util.Objects;
+
 public class Breakpoint {
 
     int line;
@@ -52,5 +54,29 @@ public class Breakpoint {
     public void setColumn(Integer column) {
 
         this.column = column;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Breakpoint that = (Breakpoint) o;
+        return line == that.line && Objects.equals(column, that.column);
+    }
+
+    @Override
+    public int hashCode() {
+
+        return Objects.hash(line, column);
+    }
+
+    @Override
+    public String toString() {
+
+        return "Breakpoint{" +
+                "line=" + line +
+                ", column=" + column +
+                '}';
     }
 }

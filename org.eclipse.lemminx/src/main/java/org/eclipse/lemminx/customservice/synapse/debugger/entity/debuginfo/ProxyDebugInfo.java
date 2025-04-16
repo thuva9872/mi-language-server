@@ -36,6 +36,16 @@ public class ProxyDebugInfo extends DebugInfo {
         this.sequenceType = sequenceType;
     }
 
+    public String getProxyKey() {
+
+        return proxyKey;
+    }
+
+    public String getSequenceType() {
+
+        return sequenceType;
+    }
+
     @Override
     public JsonElement toJson() {
 
@@ -50,5 +60,17 @@ public class ProxyDebugInfo extends DebugInfo {
 
         rootNode.addProperty("mediation-component", "sequence");
         return rootNode;
+    }
+
+    @Override
+    public String toString() {
+
+        return "ProxyDebugInfo{" +
+                "proxyKey='" + proxyKey + '\'' +
+                ", sequenceType='" + sequenceType + '\'' +
+                ", mediatorPosition='" + mediatorPosition + '\'' +
+                ", isValid=" + isValid +
+                ", error='" + error + '\'' +
+                '}';
     }
 }

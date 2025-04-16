@@ -74,4 +74,14 @@ public class DebugInfo implements IDebugInfo {
 
         return (IDebugInfo) super.clone();
     }
+
+    @Override
+    public String toString() {
+
+        return "DebugInfo{" +
+                "mediatorPosition='" + mediatorPosition + '\'' +
+                ", isValid=" + isValid +
+                ", error='" + error + '\'' +
+                '}';
+    }
 }

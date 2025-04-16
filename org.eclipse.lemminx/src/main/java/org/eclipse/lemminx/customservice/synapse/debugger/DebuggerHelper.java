@@ -72,6 +72,11 @@ public class DebuggerHelper {
         }
     }
 
+    public DebuggerHelper(STNode syntaxTree) {
+
+        this.syntaxTree = syntaxTree;
+    }
+
     /**
      * This method is used to validate the breakpoints.
      *
