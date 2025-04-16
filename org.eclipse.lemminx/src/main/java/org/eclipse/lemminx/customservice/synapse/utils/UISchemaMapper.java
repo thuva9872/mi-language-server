@@ -23,6 +23,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.lemminx.customservice.synapse.connectors.entity.Connection;
 import org.eclipse.lemminx.customservice.synapse.mediatorService.MediatorUtils;
 import org.eclipse.lemminx.customservice.synapse.mediatorService.pojo.Namespace;
@@ -85,6 +86,9 @@ public class UISchemaMapper {
                                 currentValue.getAsString().substring(1, currentValue.getAsString().length() - 1));
                     } else if (isCheckBox(value)) {
                         currentValue = new JsonPrimitive(currentValue.getAsBoolean());
+                    } else if (currentValue.isJsonPrimitive()) {
+                        String sanitizedValue = Utils.removeCDATATag(currentValue.getAsString());
+                        currentValue = new JsonPrimitive(sanitizedValue);
                     }
                     value.add("currentValue", currentValue);
                 }
@@ -100,8 +104,9 @@ public class UISchemaMapper {
         return false;
     }
 
-    private static JsonArray generateTableDataForConnector(String tableFieldValue) {
+    private static JsonArray generateTableDataForConnector(String tableFieldCDATA) {
 
+        String tableFieldValue = Utils.removeCDATATag(tableFieldCDATA);
         JsonArray result = new JsonArray();
         JSONArray tableValues = new JSONArray(tableFieldValue);
         for (int i = 0; i < tableValues.length(); i++) {

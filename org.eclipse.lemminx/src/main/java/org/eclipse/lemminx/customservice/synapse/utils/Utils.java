@@ -1391,4 +1391,22 @@ public class Utils {
         }
         return true;
     }
+
+    /**
+     * Remove CDATA tags from the given xml string.
+     * <p>
+     * * Example:
+     * {@code <![CDATA[<xml/>]]>} will be converted to {@code <xml/>}
+     * </p>
+     *
+     * @param value the xml string
+     * @return the xml string without CDATA tags
+     */
+    public static String removeCDATATag(String value) {
+
+        if (StringUtils.isEmpty(value)) {
+            return StringUtils.EMPTY;
+        }
+        return value.replaceAll("<!\\[CDATA\\[", "").replaceAll("]]>", "");
+    }
 }
