@@ -254,8 +254,7 @@ public class MediatorHandler {
             return false;
         }
         String value = (String) o;
-        return value.contains("&") || value.contains("<") || value.contains(">") || value.contains("\"") ||
-                value.contains("'");
+        return value.contains("&") || value.contains("<") || value.contains(">");
     }
 
     protected ConnectorAction getConnectorOperation(STNode node, String mediator) {

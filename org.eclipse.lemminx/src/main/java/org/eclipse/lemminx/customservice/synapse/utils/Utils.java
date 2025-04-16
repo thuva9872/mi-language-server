@@ -1396,7 +1396,7 @@ public class Utils {
      * Remove CDATA tags from the given xml string.
      * <p>
      * * Example:
-     * <![CDATA[<xml>]]> will be converted to <xml>
+     * {@code <![CDATA[<xml/>]]>} will be converted to {@code <xml/>}
      * </p>
      *
      * @param value the xml string
