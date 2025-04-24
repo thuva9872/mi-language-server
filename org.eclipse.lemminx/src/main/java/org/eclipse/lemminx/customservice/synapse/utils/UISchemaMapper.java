@@ -126,7 +126,27 @@ public class UISchemaMapper {
                 tableDataRow.add(rowInfo);
                 tableDataRow.add(rowInfo);
                 result.add(tableDataRow);
-            }
+           	} else {
+				// support for param manager with 3 fields
+				JsonArray tableDataRow = new JsonArray();
+				JsonObject rowInfo;
+
+				for (int j = 0; j < tableValue.length(); j++) {
+					String fieldName = tableValue.getString(j).trim();
+					if (j == 0) {
+						tableDataRow.add(fieldName);
+					} else {
+						rowInfo = new JsonObject();
+						String fieldValue = tableValue.getString(j).trim();
+						rowInfo.add("isExpression", new JsonPrimitive(isExpression(fieldValue)));
+						rowInfo.add("value", new JsonPrimitive(fieldValue));
+						rowInfo.add("namespaces", new JsonArray());
+						tableDataRow.add(rowInfo);
+					}
+				}
+
+				result.add(tableDataRow);
+			}
         }
         return result;
     }

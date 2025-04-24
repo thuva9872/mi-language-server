@@ -184,6 +184,19 @@ public class MediatorHandler {
                     parameterData.add(Map.of(Constant.NAME, parameter.getName(), Constant.VALUE, dataValue));
                 }
             }
+
+			// support for dynamically added parameters
+			// for every value in data with key that starts with dyn_param_ but not
+			// dyn_param_temp_ add to the parameterData
+			for (Map.Entry<String, Object> entry : data.entrySet()) {
+				if (entry.getKey().startsWith("dyn_param_") && !entry.getKey().startsWith("dyn_param_temp_")
+						&& entry.getValue() != null && !entry.getValue().toString().isEmpty()) {
+					String name = entry.getKey().substring(entry.getKey().lastIndexOf("_") + 1);
+					Map<String, Object> dataValue = processConnectorParameter(entry.getValue());
+					parameterData.add(Map.of(Constant.NAME, name, Constant.VALUE, dataValue));
+				}
+			}
+
             connectorData.put(Constant.PARAMETERS, parameterData);
             StringWriter writer = new StringWriter();
             String edit = templateMap.get(Constant.CONNECTOR).execute(writer, connectorData).toString();
@@ -233,7 +246,50 @@ public class MediatorHandler {
             }
             dataValueStr.append(']');
             dataValue.put(Constant.VALUE, String.format("%s", dataValueStr));
-        }
+        } else if (data instanceof List) {
+			List<LinkedTreeMap> dataValueList = (List) data;
+			StringBuilder dataValueStr = new StringBuilder("[");
+			for (LinkedTreeMap dataValueItem : dataValueList) {
+				if (dataValueItem.get(Constant.PROPERTY_NAME) != null
+						&& dataValueItem.get(Constant.PROPERTY_VALUE) != null) {
+					Object propertyValue;
+					if (dataValueItem.get(Constant.PROPERTY_VALUE) instanceof LinkedTreeMap) {
+						LinkedTreeMap dataValueLinkedTree = (LinkedTreeMap) dataValueItem.get(Constant.PROPERTY_VALUE);
+						propertyValue = dataValueLinkedTree.get(Constant.VALUE);
+					} else {
+						propertyValue = dataValueItem.get(Constant.PROPERTY_VALUE);
+					}
+					dataValueStr.append(String.format("[\"%s\",\"%s\"],",
+							dataValueItem.get(Constant.PROPERTY_NAME), propertyValue));
+				} else if (dataValueList.size() > 0) {
+					// get all the values in the list and append to the dataValueStr in the format
+					// ["value1","value2","value3"...]
+
+					// if count of value larger than 0
+					dataValueStr.append("[");
+					for (Object key : dataValueItem.keySet()) {
+						Object propertyValue;
+						if (dataValueItem.get(key) instanceof LinkedTreeMap) {
+							LinkedTreeMap dataValueLinkedTree = (LinkedTreeMap) dataValueItem.get(key);
+							propertyValue = dataValueLinkedTree.get(Constant.VALUE);
+						} else {
+							propertyValue = dataValueItem.get(key);
+						}
+
+						// encode double quotes in the value if present
+						if (propertyValue instanceof String) {
+							propertyValue = ((String) propertyValue).replace("\"", "\\\"");
+						}
+
+						dataValueStr.append(String.format("\"%s\",", propertyValue));
+					}
+					dataValueStr.append("],");
+				}
+			}
+			dataValueStr.append(']');
+			dataValue.put(Constant.VALUE, String.format("%s", dataValueStr));
+		}
+
         if (dataValue.get(Constant.VALUE) != null && dataValue.get(Constant.VALUE).toString().startsWith("<![CDATA[")) {
             dataValue.put(Constant.IS_CDATA, true);
             String value = dataValue.get(Constant.VALUE).toString().substring(9); // Remove <![CDATA[

@@ -18,6 +18,8 @@
 
 package org.eclipse.lemminx.customservice.synapse.parser;
 
+import org.eclipse.lemminx.customservice.synapse.connectors.ConnectorHolder;
+import org.eclipse.lemminx.customservice.synapse.connectors.entity.Connector;
 import org.eclipse.lemminx.customservice.synapse.mediator.TryOutConstants;
 import org.eclipse.lemminx.customservice.synapse.utils.Constant;
 import org.eclipse.lemminx.customservice.synapse.utils.Utils;
@@ -34,9 +36,13 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 
 import static org.eclipse.lemminx.customservice.synapse.parser.pom.PomParser.getPomDetails;
 
@@ -168,4 +174,178 @@ public class ConnectorDownloadManager {
             throw e;
         }
     }
+
+ 	/**
+ 	 * Downloads the driver JAR for a specific connector and connection type by parsing the descriptor.yml file
+ 	 */
+ 	public static String downloadDriverForConnector(String projectPath, String connectorName, String connectionType) {
+ 		try {
+ 
+ 			ConnectorHolder connectorHolder;
+ 			connectorHolder = ConnectorHolder.getInstance();
+ 			Connector connector = connectorHolder.getConnector(connectorName);
+ 
+ 			String projectId = new File(projectPath).getName() + "_" + Utils.getHash(projectPath);
+ 			File connectorsDirectory = Path.of(System.getProperty(Constant.USER_HOME), Constant.WSO2_MI,
+ 					Constant.CONNECTORS, projectId, Constant.EXTRACTED).toFile();
+ 
+ 			if (!connectorsDirectory.exists() || !connectorsDirectory.isDirectory()) {
+ 				LOGGER.log(Level.SEVERE,
+ 						"Connectors directory does not exist: " + connectorsDirectory.getAbsolutePath());
+ 				return null;
+ 			}
+ 
+ 			String connectorPath = connector.getExtractedConnectorPath();
+ 			File connectorDirectory = Path.of(connectorPath).toFile();
+ 			if (!connectorDirectory.exists() || !connectorDirectory.isDirectory()) {
+ 				LOGGER.log(Level.SEVERE, "Connector directory does not exist: " + connectorDirectory.getAbsolutePath());
+ 				return null;
+ 			}
+ 
+ 			// Read descriptor.yml from the connector folder
+ 			File descriptorFile = new File(connectorDirectory, Constant.DESCRIPTOR_FILE);
+ 			if (!descriptorFile.exists()) {
+ 				LOGGER.log(Level.SEVERE, "descriptor.yml not found in connector: " + connectorName);
+ 				return null;
+ 			}
+ 
+ 			Map<String, Object> descriptorData;
+ 			try (InputStream inputStream = new FileInputStream(descriptorFile)) {
+ 				ObjectMapper yamlMapper = new ObjectMapper(new YAMLFactory());
+ 				descriptorData = yamlMapper.readValue(inputStream, Map.class);
+ 			} catch (IOException e) {
+ 				LOGGER.log(Level.SEVERE, "Error reading descriptor.yml: " + e.getMessage(), e);
+ 				return null;
+ 			}
+ 
+ 			// Find the driver info that matches the connection type
+ 			Map<String, Object> driverInfo = findDriverForConnectionType(descriptorData, connectionType);
+ 			if (driverInfo == null) {
+ 				LOGGER.log(Level.SEVERE, "No driver found for connection type: " + connectionType);
+ 				return null;
+ 			}
+ 
+ 			// Extract driver coordinates
+ 			String groupId = (String) driverInfo.get(Constant.GROUP_ID_KEY);
+ 			String artifactId = (String) driverInfo.get(Constant.ARTIFACT_ID_KEY);
+ 			String version = (String) driverInfo.get(Constant.VERSION_KEY);
+ 
+ 			if (groupId == null || artifactId == null || version == null) {
+ 				LOGGER.log(Level.SEVERE, "Invalid driver coordinates in descriptor");
+ 				return null;
+ 			}
+ 
+ 			// Create temp drivers directory if it doesn't exist
+ 			File driversDirectory = Path.of(System.getProperty(Constant.USER_HOME), Constant.WSO2_MI,
+ 					Constant.CONNECTORS, projectId, Constant.DRIVERS).toFile();
+ 			if (!driversDirectory.exists()) {
+ 				driversDirectory.mkdirs();
+ 			}
+ 
+ 			// Check if driver already exists
+ 			File driverFile = new File(driversDirectory, artifactId + "-" + version + Constant.JAR_EXTENSION);
+ 			if (driverFile.exists()) {
+ 				LOGGER.log(Level.INFO, "Driver already exists: " + driverFile.getAbsolutePath());
+ 				return driverFile.getAbsolutePath();
+ 			}
+ 
+ 			// Try to find the driver in local Maven repository first
+ 			File localDriverFile = getDriverFromLocalRepo(groupId, artifactId, version);
+ 			if (localDriverFile != null) {
+ 				copyFile(localDriverFile, driversDirectory);
+ 				return new File(driversDirectory, localDriverFile.getName()).getAbsolutePath();
+ 			}
+ 
+ 			// Download the driver from Maven repository
+ 			String downloadedPath = downloadDriverFromMaven(groupId, artifactId, version, driversDirectory);
+ 			return downloadedPath;
+ 
+ 		} catch (Exception e) {
+ 			LOGGER.log(Level.SEVERE, "Error while downloading driver: " + e.getMessage(), e);
+ 			return null;
+ 		}
+ 	}
+ 
+ 	/**
+ 	 * Finds driver info for the specified connection type from the descriptor data
+ 	 */
+ 	private static Map<String, Object> findDriverForConnectionType(Map<String, Object> descriptorData,
+ 			String connectionType) {
+ 		try {
+ 
+ 			Object dependenciesObj = descriptorData.get("dependencies");
+ 			if (dependenciesObj != null && dependenciesObj instanceof List) {
+ 				List<Map<String, Object>> dependencies = (List<Map<String, Object>>) dependenciesObj;
+ 				Map<String, Object> exactMatch = null;
+ 
+ 				for (Map<String, Object> dependency : dependencies) {
+ 					Object depConnType = dependency.get("connectionType");
+ 					if (depConnType != null && connectionType.equalsIgnoreCase(depConnType.toString())) {
+ 						exactMatch = dependency;
+ 						break;
+ 					}
+ 				}
+ 
+ 				if (exactMatch != null) {
+ 					return exactMatch;
+ 				}
+ 			}
+ 
+ 			LOGGER.log(Level.WARNING, "No driver found for connection type: " + connectionType);
+ 			return null;
+ 		} catch (Exception e) {
+ 			LOGGER.log(Level.SEVERE, "Error finding driver for connection type: " + e.getMessage(), e);
+ 			return null;
+ 		}
+ 	}
+ 
+ 	/**
+ 	 * Gets driver JAR from local Maven repository
+ 	 */
+ 	private static File getDriverFromLocalRepo(String groupId, String artifactId, String version) {
+ 		String localMavenRepo = Path.of(System.getProperty(Constant.USER_HOME), Constant.M2,
+ 				Constant.REPOSITORY).toString();
+ 		String artifactPath = Path.of(localMavenRepo, groupId.replace(".", File.separator), artifactId,
+ 				version, artifactId + "-" + version + ".jar").toString();
+ 		File artifactFile = new File(artifactPath);
+ 
+ 		if (artifactFile.exists()) {
+ 			LOGGER.log(Level.INFO, "Driver found in local repository: " + artifactId);
+ 			return artifactFile;
+ 		} else {
+ 			LOGGER.log(Level.INFO, "Driver not found in local repository: " + artifactId);
+ 			return null;
+ 		}
+ 	}
+ 
+ 	/**
+ 	 * Downloads the driver JAR from Maven repository
+ 	 */
+ 	private static String downloadDriverFromMaven(String groupId, String artifactId, String version,
+ 			File targetDirectory)
+ 			throws IOException {
+ 		if (!targetDirectory.exists()) {
+ 			targetDirectory.mkdirs();
+ 		}
+ 
+ 		String url = String.format("https://maven.wso2.org/nexus/content/groups/public/%s/%s/%s/%s-%s.jar",
+ 				groupId.replace(".", "/"), artifactId, version, artifactId, version);
+ 		File targetFile = new File(targetDirectory, artifactId + "-" + version + ".jar");
+ 
+ 		LOGGER.log(Level.INFO, "Downloading driver from: " + url);
+ 
+ 		try (BufferedInputStream in = new BufferedInputStream(new URL(url).openStream());
+ 				FileOutputStream fileOutputStream = new FileOutputStream(targetFile)) {
+ 			byte[] dataBuffer = new byte[1024];
+ 			int bytesRead;
+ 			while ((bytesRead = in.read(dataBuffer, 0, 1024)) != -1) {
+ 				fileOutputStream.write(dataBuffer, 0, bytesRead);
+ 			}
+ 			LOGGER.log(Level.INFO, "Driver downloaded successfully: " + targetFile.getAbsolutePath());
+ 			return targetFile.getAbsolutePath();
+ 		} catch (IOException e) {
+ 			LOGGER.log(Level.SEVERE, "Error occurred while downloading driver: " + e.getMessage());
+ 			throw e;
+ 		}
+ 	}
 }

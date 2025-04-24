@@ -18,16 +18,17 @@
 
 package org.eclipse.lemminx.customservice.synapse.utils;
 
-import com.google.common.collect.BiMap;
-import com.google.common.collect.HashBiMap;
-import org.apache.axiom.om.OMAbstractFactory;
-import org.apache.axiom.om.OMNamespace;
-
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.apache.axiom.om.OMAbstractFactory;
+import org.apache.axiom.om.OMNamespace;
+
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
 
 public class Constant {
 
@@ -523,6 +524,7 @@ public class Constant {
     public static final String NAMESPACES = "namespaces";
     public static final String CONNECTION_NAME = "connectionName";
     public static final String ZIP_EXTENSION = ".zip";
+    public static final String JAR_EXTENSION = ".jar";
     public static final String CONNECTORS = "connectors";
     public static final String USER_HOME = "user.home";
     public static final String MAIN = "main";
@@ -605,6 +607,12 @@ public class Constant {
     public static final String DEFAULT_REQUEST = "defaultRequest";
     public static final String CONTENT = "content";
     public static final String IS_CDATA = "isCDATA";
+
+	public static final String DESCRIPTOR_FILE = "descriptor.yml";
+	public static final String DRIVERS = "Drivers";
+	public static final String GROUP_ID_KEY = "groupId";
+	public static final String ARTIFACT_ID_KEY = "artifactId";
+	public static final String VERSION_KEY = "version";
 
     static {
         // AI Connection to Display Name bi-Mapping

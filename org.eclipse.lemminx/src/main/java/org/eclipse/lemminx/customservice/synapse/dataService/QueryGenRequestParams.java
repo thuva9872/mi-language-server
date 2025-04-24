@@ -50,4 +50,20 @@ public class QueryGenRequestParams {
     public void setDatasourceName(String datasourceName) {
         this.datasourceName = datasourceName;
     }
+
+	public String getClassName() {
+		return className;
+	}
+
+	public String getUsername() {
+		return username;
+	}
+
+	public String getPassword() {
+		return password;
+	}
+
+	public String getUrl() {
+		return url;
+	}
 }
