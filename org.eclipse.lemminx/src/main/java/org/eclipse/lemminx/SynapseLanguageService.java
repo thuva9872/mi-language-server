@@ -159,7 +159,7 @@ public class SynapseLanguageService implements ISynapseLanguageService {
     private TryOutManager tryOutManager;
     private String miServerPath;
     private ExpressionHelperProvider expressionHelperProvider;
-	private DynamicFieldsHandler dynamicFieldsHandler;
+    private DynamicFieldsHandler dynamicFieldsHandler;
 
     public SynapseLanguageService(XMLTextDocumentService xmlTextDocumentService, XMLLanguageServer xmlLanguageServer) {
 
@@ -169,7 +169,7 @@ public class SynapseLanguageService implements ISynapseLanguageService {
         this.inboundConnectorHolder = new InboundConnectorHolder();
         mediatorHandler = new MediatorHandler();
         connectionHandler = new ConnectionHandler();
-		this.dynamicFieldsHandler = new DynamicFieldsHandler();
+        this.dynamicFieldsHandler = new DynamicFieldsHandler();
     }
 
     public void init(String projectUri, Object settings, SynapseLanguageClientAPI languageClient) {
@@ -225,7 +225,7 @@ public class SynapseLanguageService implements ISynapseLanguageService {
     @Override
     public CompletableFuture<DBConnectionTestResponse> testDBConnection(DBConnectionTestParams dbConnectionTestParams) {
 
-		loadTempDrivers();
+        loadTempDrivers();
         DBConnectionTester dbConnectionTester = new DBConnectionTester();
         boolean connectionStatus = dbConnectionTester.testDBConnection(dbConnectionTestParams.dbType,
                 dbConnectionTestParams.username, dbConnectionTestParams.password,
@@ -625,51 +625,51 @@ public class SynapseLanguageService implements ISynapseLanguageService {
         return CompletableFuture.supplyAsync(() -> SyntaxTreeGenerator.getArtifactType(artifactIdentifier.getUri()));
     }
 
-	
-	@Override
+    
+    @Override
     public CompletableFuture<Map<String, List<DynamicField>>> getDynamicFields(GetDynamicFieldsRequest request) {
-		
-		loadTempDrivers();
-		return CompletableFuture.supplyAsync(() -> dynamicFieldsHandler.handleDynamicFieldsRequest(request).getFields());
-	}
+        
+        loadTempDrivers();
+        return CompletableFuture.supplyAsync(() -> dynamicFieldsHandler.handleDynamicFieldsRequest(request).getFields());
+    }
 
-	@Override
-	public CompletableFuture<List<String>> getStoredProcedures(QueryGenRequestParams request) {
-		
-		loadTempDrivers();
-		return CompletableFuture.supplyAsync(() -> dynamicFieldsHandler.getStoredProcedures(request));
-	}
+    @Override
+    public CompletableFuture<List<String>> getStoredProcedures(QueryGenRequestParams request) {
+        
+        loadTempDrivers();
+        return CompletableFuture.supplyAsync(() -> dynamicFieldsHandler.getStoredProcedures(request));
+    }
 
-	@Override
-	public CompletableFuture<String> downloadDriverForConnector(DriverDownloadRequest request) {
-		
-		String message = ConnectorDownloadManager.downloadDriverForConnector(
-				projectUri,
-				request.getConnectorName(),
-				request.getConnectionType());
-		if (message != null) {
-			String driverJarPath = message.substring(0, message.lastIndexOf(File.separator));
-			// update the class loader with the new driver jar file
-			try {
-				DynamicClassLoader.updateClassLoader(Path.of(driverJarPath).toFile());
-			} catch (Exception e) {
-				log.log(Level.SEVERE, "Error while updating class loader for DB drivers.", e);
-			}
-		}
-		return CompletableFuture.supplyAsync(() -> message);
-	}
+    @Override
+    public CompletableFuture<String> downloadDriverForConnector(DriverDownloadRequest request) {
+        
+        String message = ConnectorDownloadManager.downloadDriverForConnector(
+                projectUri,
+                request.getConnectorName(),
+                request.getConnectionType());
+        if (message != null) {
+            String driverJarPath = message.substring(0, message.lastIndexOf(File.separator));
+            // update the class loader with the new driver jar file
+            try {
+                DynamicClassLoader.updateClassLoader(Path.of(driverJarPath).toFile());
+            } catch (Exception e) {
+                log.log(Level.SEVERE, "Error while updating class loader for DB drivers.", e);
+            }
+        }
+        return CompletableFuture.supplyAsync(() -> message);
+    }
 
-	public void loadTempDrivers() {
-		try {
-			String projectId = new File(projectUri).getName() + "_" + Utils.getHash(projectUri);
-			File driversDirectory = Path.of(System.getProperty(Constant.USER_HOME), Constant.WSO2_MI,
-					Constant.CONNECTORS, projectId, Constant.DRIVERS).toFile();
-			if (driversDirectory.exists())
-				DynamicClassLoader.updateClassLoader(new File(driversDirectory.getAbsolutePath()));
-		} catch (Exception e) {
-			log.log(Level.SEVERE, "Error while updating class loader for DB drivers.", e);
-		}
-	}
+    public void loadTempDrivers() {
+        try {
+            String projectId = new File(projectUri).getName() + "_" + Utils.getHash(projectUri);
+            File driversDirectory = Path.of(System.getProperty(Constant.USER_HOME), Constant.WSO2_MI,
+                    Constant.CONNECTORS, projectId, Constant.DRIVERS).toFile();
+            if (driversDirectory.exists())
+                DynamicClassLoader.updateClassLoader(new File(driversDirectory.getAbsolutePath()));
+        } catch (Exception e) {
+            log.log(Level.SEVERE, "Error while updating class loader for DB drivers.", e);
+        }
+    }
 
     public String getProjectUri() {
         return projectUri;

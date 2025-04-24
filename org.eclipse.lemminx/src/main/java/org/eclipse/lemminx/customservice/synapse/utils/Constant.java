@@ -608,11 +608,11 @@ public class Constant {
     public static final String CONTENT = "content";
     public static final String IS_CDATA = "isCDATA";
 
-	public static final String DESCRIPTOR_FILE = "descriptor.yml";
-	public static final String DRIVERS = "Drivers";
-	public static final String GROUP_ID_KEY = "groupId";
-	public static final String ARTIFACT_ID_KEY = "artifactId";
-	public static final String VERSION_KEY = "version";
+    public static final String DESCRIPTOR_FILE = "descriptor.yml";
+    public static final String DRIVERS = "Drivers";
+    public static final String GROUP_ID_KEY = "groupId";
+    public static final String ARTIFACT_ID_KEY = "artifactId";
+    public static final String VERSION_KEY = "version";
 
     static {
         // AI Connection to Display Name bi-Mapping

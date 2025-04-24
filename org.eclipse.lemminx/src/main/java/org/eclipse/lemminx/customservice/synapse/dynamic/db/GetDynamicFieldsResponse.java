@@ -21,13 +21,13 @@ import java.util.List;
 import java.util.Map;
 
 public class GetDynamicFieldsResponse {
-	private Map<String, List<DynamicField>> fields;
+    private Map<String, List<DynamicField>> fields;
 
-	public Map<String, List<DynamicField>> getFields() {
-		return fields;
-	}
+    public Map<String, List<DynamicField>> getFields() {
+        return fields;
+    }
 
-	public void setFields(Map<String, List<DynamicField>> fields) {
-		this.fields = fields;
-	}
+    public void setFields(Map<String, List<DynamicField>> fields) {
+        this.fields = fields;
+    }
 }

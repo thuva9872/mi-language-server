@@ -19,22 +19,22 @@
 package org.eclipse.lemminx.customservice.synapse.dynamic.db;
 
 public class DynamicField {
-	private String type;
-	private DynamicFieldValue value;
+    private String type;
+    private DynamicFieldValue value;
 
-	public String getType() {
-		return type;
-	}
+    public String getType() {
+        return type;
+    }
 
-	public void setType(String type) {
-		this.type = type;
-	}
+    public void setType(String type) {
+        this.type = type;
+    }
 
-	public DynamicFieldValue getValue() {
-		return value;
-	}
+    public DynamicFieldValue getValue() {
+        return value;
+    }
 
-	public void setValue(DynamicFieldValue value) {
-		this.value = value;
-	}
+    public void setValue(DynamicFieldValue value) {
+        this.value = value;
+    }
 }

@@ -247,12 +247,12 @@ public interface ISynapseLanguageService {
     @JsonRequest
     CompletableFuture<ArtifactTypeResponse> getArtifactType(TextDocumentIdentifier artifactIdentifier);
 
-	@JsonRequest
-	CompletableFuture<Map<String, List<DynamicField>>> getDynamicFields(GetDynamicFieldsRequest request);
+    @JsonRequest
+    CompletableFuture<Map<String, List<DynamicField>>> getDynamicFields(GetDynamicFieldsRequest request);
 
-	@JsonRequest
-	CompletableFuture<List<String>> getStoredProcedures(QueryGenRequestParams requestParams);
-	
-	@JsonRequest
-	CompletableFuture<String> downloadDriverForConnector(DriverDownloadRequest request);
+    @JsonRequest
+    CompletableFuture<List<String>> getStoredProcedures(QueryGenRequestParams requestParams);
+
+    @JsonRequest
+    CompletableFuture<String> downloadDriverForConnector(DriverDownloadRequest request);
 }

@@ -19,80 +19,80 @@
 package org.eclipse.lemminx.customservice.synapse.dynamic.db;
 
 public class DynamicFieldValue {
-	private String name;
-	private String displayName;
-	private String inputType;
-	private String required;
-	private String helpTip;
-	private String placeholder;
-	private String defaultValue;
+    private String name;
+    private String displayName;
+    private String inputType;
+    private String required;
+    private String helpTip;
+    private String placeholder;
+    private String defaultValue;
 
-	public String getName() {
-		return name;
-	}
+    public String getName() {
+        return name;
+    }
 
-	public void setName(String name) {
-		this.name = name;
-	}
+    public void setName(String name) {
+        this.name = name;
+    }
 
-	public String getDisplayName() {
-		return displayName;
-	}
+    public String getDisplayName() {
+        return displayName;
+    }
 
-	public void setDisplayName(String displayName) {
-		this.displayName = displayName;
-	}
+    public void setDisplayName(String displayName) {
+        this.displayName = displayName;
+    }
 
-	public String getInputType() {
-		return inputType;
-	}
+    public String getInputType() {
+        return inputType;
+    }
 
-	public void setInputType(String inputType) {
-		this.inputType = inputType;
-	}
+    public void setInputType(String inputType) {
+        this.inputType = inputType;
+    }
 
-	public String getRequired() {
-		return required;
-	}
+    public String getRequired() {
+        return required;
+    }
 
-	public void setRequired(String required) {
-		this.required = required;
-	}
+    public void setRequired(String required) {
+        this.required = required;
+    }
 
-	public String getHelpTip() {
-		return helpTip;
-	}
+    public String getHelpTip() {
+        return helpTip;
+    }
 
-	public void setHelpTip(String helpTip) {
-		this.helpTip = helpTip;
-	}
+    public void setHelpTip(String helpTip) {
+        this.helpTip = helpTip;
+    }
 
-	public String getPlaceholder() {
-		return placeholder;
-	}
+    public String getPlaceholder() {
+        return placeholder;
+    }
 
-	public void setPlaceholder(String placeholder) {
-		this.placeholder = placeholder;
-	}
+    public void setPlaceholder(String placeholder) {
+        this.placeholder = placeholder;
+    }
 
-	public String getDefaultValue() {
-		return defaultValue;
-	}
+    public String getDefaultValue() {
+        return defaultValue;
+    }
 
-	public void setDefaultValue(String defaultValue) {
-		this.defaultValue = defaultValue;
-	}
+    public void setDefaultValue(String defaultValue) {
+        this.defaultValue = defaultValue;
+    }
 
-	@Override
-	public String toString() {
-		return "DynamicFieldValue{" +
-				"name='" + name + '\'' +
-				", displayName='" + displayName + '\'' +
-				", inputType='" + inputType + '\'' +
-				", required='" + required + '\'' +
-				", helpTip='" + helpTip + '\'' +
-				", placeholder='" + placeholder + '\'' +
-				", defaultValue='" + defaultValue + '\'' +
-				'}';
-	}
+    @Override
+    public String toString() {
+        return "DynamicFieldValue{" +
+                "name='" + name + '\'' +
+                ", displayName='" + displayName + '\'' +
+                ", inputType='" + inputType + '\'' +
+                ", required='" + required + '\'' +
+                ", helpTip='" + helpTip + '\'' +
+                ", placeholder='" + placeholder + '\'' +
+                ", defaultValue='" + defaultValue + '\'' +
+                '}';
+    }
 }

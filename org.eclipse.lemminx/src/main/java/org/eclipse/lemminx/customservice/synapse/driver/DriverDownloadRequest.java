@@ -26,7 +26,7 @@ public class DriverDownloadRequest {
     private String connectionType;
 
     public DriverDownloadRequest() {
-		
+        
     }
 
     public DriverDownloadRequest(String connectorName, String connectionType) {
