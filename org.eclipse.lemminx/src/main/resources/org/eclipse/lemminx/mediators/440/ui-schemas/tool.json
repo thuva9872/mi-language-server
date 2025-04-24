@@ -32,7 +32,7 @@
           "name": "toolResultExpression",
           "displayName": "Tool Response Expression",
           "inputType": "expression",
-          "defaultValue": "",
+          "defaultValue": "payload",
           "required": true,
           "helpTip": "The expression to get the tool response after tool execution"
         }
