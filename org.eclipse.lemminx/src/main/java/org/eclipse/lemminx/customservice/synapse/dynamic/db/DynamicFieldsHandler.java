@@ -37,7 +37,7 @@ public class DynamicFieldsHandler {
     private final DatabaseService databaseService;
     private static final Logger log = Logger.getLogger(DynamicFieldsHandler.class.getName());
 
-    private static final String DB_CONNECTOR = "dbconnector";
+    private static final String DB_CONNECTOR = "db";
     private static final String FIELD_TABLE = "table";
     private static final String FIELD_COLUMNS = "columns";
     private static final String PARAM_DB_URL = "dbUrl";
