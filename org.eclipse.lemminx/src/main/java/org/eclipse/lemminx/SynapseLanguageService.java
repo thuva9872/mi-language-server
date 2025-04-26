@@ -100,6 +100,7 @@ import org.eclipse.lemminx.customservice.synapse.definition.SynapseDefinitionPro
 import org.eclipse.lemminx.customservice.synapse.directoryTree.DirectoryMapResponse;
 import org.eclipse.lemminx.customservice.synapse.directoryTree.DirectoryTreeBuilder;
 import org.eclipse.lemminx.customservice.synapse.driver.DriverDownloadRequest;
+import org.eclipse.lemminx.customservice.synapse.driver.DriverLoader;
 import org.eclipse.lemminx.customservice.synapse.dynamic.db.DynamicField;
 import org.eclipse.lemminx.customservice.synapse.dynamic.db.DynamicFieldsHandler;
 import org.eclipse.lemminx.customservice.synapse.dynamic.db.GetDynamicFieldsRequest;
@@ -226,7 +227,7 @@ public class SynapseLanguageService implements ISynapseLanguageService {
     @Override
     public CompletableFuture<DBConnectionTestResponse> testDBConnection(DBConnectionTestParams dbConnectionTestParams) {
 
-        loadTempDrivers();
+        DriverLoader.loadTempDrivers(projectUri);
         DBConnectionTester dbConnectionTester = new DBConnectionTester();
         boolean connectionStatus = dbConnectionTester.testDBConnection(dbConnectionTestParams.dbType,
                 dbConnectionTestParams.username, dbConnectionTestParams.password,
@@ -626,50 +627,33 @@ public class SynapseLanguageService implements ISynapseLanguageService {
         return CompletableFuture.supplyAsync(() -> SyntaxTreeGenerator.getArtifactType(artifactIdentifier.getUri()));
     }
 
-    
     @Override
     public CompletableFuture<Map<String, List<DynamicField>>> getDynamicFields(GetDynamicFieldsRequest request) {
-        
-        loadTempDrivers();
+
+        DriverLoader.loadTempDrivers(projectUri);
         return CompletableFuture.supplyAsync(() -> dynamicFieldsHandler.handleDynamicFieldsRequest(request).getFields());
     }
 
     @Override
     public CompletableFuture<List<String>> getStoredProcedures(QueryGenRequestParams request) {
-        
-        loadTempDrivers();
+
+        DriverLoader.loadTempDrivers(projectUri);
         return CompletableFuture.supplyAsync(() -> dynamicFieldsHandler.getStoredProcedures(request));
     }
 
     @Override
     public CompletableFuture<String> downloadDriverForConnector(DriverDownloadRequest request) {
-        
+
         String message = ConnectorDownloadManager.downloadDriverForConnector(
                 projectUri,
                 request.getConnectorName(),
                 request.getConnectionType());
-		if (!StringUtils.isEmpty(message)) {
+        if (!StringUtils.isEmpty(message)) {
             String driverJarPath = message.substring(0, message.lastIndexOf(File.separator));
             // update the class loader with the new driver jar file
-            try {
-                DynamicClassLoader.updateClassLoader(Path.of(driverJarPath).toFile());
-            } catch (Exception e) {
-                log.log(Level.SEVERE, "Error while updating class loader for DB drivers.", e);
-            }
+            DriverLoader.loadDriverJar(driverJarPath);
         }
         return CompletableFuture.supplyAsync(() -> message);
-    }
-
-    public void loadTempDrivers() {
-        try {
-            String projectId = new File(projectUri).getName() + "_" + Utils.getHash(projectUri);
-            File driversDirectory = Path.of(System.getProperty(Constant.USER_HOME), Constant.WSO2_MI,
-                    Constant.CONNECTORS, projectId, Constant.DRIVERS).toFile();
-            if (driversDirectory.exists())
-                DynamicClassLoader.updateClassLoader(new File(driversDirectory.getAbsolutePath()));
-        } catch (Exception e) {
-            log.log(Level.SEVERE, "Error while updating class loader for DB drivers.", e);
-        }
     }
 
     public String getProjectUri() {
