@@ -191,7 +191,7 @@ public class UISchemaMapper {
         List<Namespace> namespaces = MediatorUtils.transformNamespaces(parameter.getNamespaces());
         JsonArray namespacesJson = new Gson().toJsonTree(namespaces).getAsJsonArray();
         JsonObject expression = new JsonObject();
-        String expressionValue = parameter.getValue();
+        String expressionValue = parameter.getExpression();
         Pattern pattern = Pattern.compile("\\{.*}");
         if (expressionValue != null && pattern.matcher(expressionValue).matches()) {
             expressionValue = expressionValue.substring(1, expressionValue.length() - 1);
