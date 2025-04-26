@@ -214,7 +214,7 @@ public class ConnectorDownloadManager {
                  ObjectMapper yamlMapper = new ObjectMapper(new YAMLFactory());
                  descriptorData = yamlMapper.readValue(inputStream, Map.class);
              } catch (IOException e) {
-                 LOGGER.log(Level.SEVERE, "Error reading descriptor.yml: " + e.getMessage(), e);
+                 LOGGER.log(Level.SEVERE, "Error reading descriptor.yml: " + e.getMessage());
                  return null;
              }
  
@@ -259,11 +259,14 @@ public class ConnectorDownloadManager {
              // Download the driver from Maven repository
              String downloadedPath = downloadDriverFromMaven(groupId, artifactId, version, driversDirectory);
              return downloadedPath;
- 
-         } catch (Exception e) {
-             LOGGER.log(Level.SEVERE, "Error while downloading driver: " + e.getMessage(), e);
-             return null;
-         }
+
+            } catch (IOException e) {
+                LOGGER.log(Level.SEVERE, "IOException occurred while downloading driver: " + e.getMessage());
+                return null;
+            } catch (Exception e) {
+                LOGGER.log(Level.SEVERE, "Error while downloading driver: " + e.getMessage());
+                return null;
+            }
      }
  
      /**
@@ -294,7 +297,7 @@ public class ConnectorDownloadManager {
              LOGGER.log(Level.WARNING, "No driver found for connection type: " + connectionType);
              return null;
          } catch (Exception e) {
-             LOGGER.log(Level.SEVERE, "Error finding driver for connection type: " + e.getMessage(), e);
+             LOGGER.log(Level.SEVERE, "Error finding driver for connection type: " + e.getMessage());
              return null;
          }
      }
@@ -320,20 +323,20 @@ public class ConnectorDownloadManager {
  
      /**
       * Downloads the driver JAR from Maven repository
+     * @throws IOException 
       */
      private static String downloadDriverFromMaven(String groupId, String artifactId, String version,
-             File targetDirectory)
-             throws IOException {
+             File targetDirectory) throws IOException {
          if (!targetDirectory.exists()) {
              targetDirectory.mkdirs();
          }
- 
+
          String url = String.format("https://maven.wso2.org/nexus/content/groups/public/%s/%s/%s/%s-%s.jar",
                  groupId.replace(".", "/"), artifactId, version, artifactId, version);
-         File targetFile = new File(targetDirectory, artifactId + "-" + version + ".jar");
- 
+         File targetFile = new File(targetDirectory, artifactId + "-" + version + Constant.JAR_EXTENSION);
+
          LOGGER.log(Level.INFO, "Downloading driver from: " + url);
- 
+
          try (BufferedInputStream in = new BufferedInputStream(new URL(url).openStream());
                  FileOutputStream fileOutputStream = new FileOutputStream(targetFile)) {
              byte[] dataBuffer = new byte[1024];

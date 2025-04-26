@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024, WSO2 LLC. (http://www.wso2.com).
+ * Copyright (c) 2025, WSO2 LLC. (http://www.wso2.com).
  *
  * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -42,13 +42,14 @@ public class DatabaseService {
     private static final String TYPE_NAME_COLUMN = "TYPE_NAME";
 
     /**
+     * Retrieves the columns of a specified table from the database and returns them as a list of DynamicField objects.
      * @param connectionUrl
      * @param username
      * @param password
      * @param table
      * @param fieldName
      * @param markNull
-     * @return List of DynamicField objects representing the columns of the table
+     * @return List<DynamicField> containing the columns of the table.
      */
     public List<DynamicField> getTableColumns(String connectionUrl, String username, String password, String table,
             String fieldName, boolean markNull) {
@@ -91,7 +92,16 @@ public class DatabaseService {
         return fields;
     }
 
-    // getStoredProcedureParameters
+    /**
+     * Retrieves the parameters of a specified stored procedure from the database and returns them as a list of
+     * DynamicField objects.
+     * @param connectionUrl
+     * @param username
+     * @param password
+     * @param procedureName
+     * @param fieldName
+     * @return List<DynamicField> containing the parameters of the stored procedure.
+     */
     public List<DynamicField> getStoredProcedureParameters(String connectionUrl, String username, String password,
             String procedureName, String fieldName) {
         List<DynamicField> fields = new ArrayList<>();
@@ -157,14 +167,11 @@ public class DatabaseService {
             case "VARCHAR":
             case "CHAR":
             case "TEXT":
-                return "stringOrExpression";
             case "INT":
             case "BIGINT":
             case "DECIMAL":
             case "NUMERIC":
-                return "stringOrExpression";
             case "DATE":
-                return "stringOrExpression";
             case "BOOLEAN":
                 return "stringOrExpression";
             default:
