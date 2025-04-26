@@ -118,6 +118,7 @@ import org.eclipse.lemminx.customservice.synapse.utils.Utils;
 import org.eclipse.lemminx.extensions.contentmodel.settings.XMLValidationSettings;
 import org.eclipse.lemminx.services.extensions.completion.ICompletionResponse;
 import org.eclipse.lemminx.settings.SharedSettings;
+import org.eclipse.lemminx.utils.StringUtils;
 import org.eclipse.lsp4j.DefinitionParams;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Location;
@@ -647,7 +648,7 @@ public class SynapseLanguageService implements ISynapseLanguageService {
                 projectUri,
                 request.getConnectorName(),
                 request.getConnectionType());
-        if (message != null) {
+		if (!StringUtils.isEmpty(message)) {
             String driverJarPath = message.substring(0, message.lastIndexOf(File.separator));
             // update the class loader with the new driver jar file
             try {

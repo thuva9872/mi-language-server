@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.eclipse.lemminx.utils.StringUtils;
 
 public class DatabaseService {
     private static final Logger LOGGER = Logger.getLogger(DatabaseService.class.getName());
@@ -102,7 +103,7 @@ public class DatabaseService {
                 while (parameters.next()) {
                     // Skip return value parameter if present (often the first one without a name)
                     String parameterName = parameters.getString(COLUMN_NAME_COLUMN);
-                    if (parameterName == null || parameterName.isEmpty()) {
+                    if (StringUtils.isEmpty(parameterName)) {
                         continue;
                     }
 
@@ -144,7 +145,7 @@ public class DatabaseService {
      * @return An XML-safe version of the name.
      */
     private String toXmlSafeName(String name) {
-        if (name == null) {
+        if (StringUtils.isEmpty(name)) {
             return "";
         }
 
