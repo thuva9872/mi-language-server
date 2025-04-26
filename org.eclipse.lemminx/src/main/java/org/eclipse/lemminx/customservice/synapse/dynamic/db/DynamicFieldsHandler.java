@@ -58,12 +58,12 @@ public class DynamicFieldsHandler {
         this.databaseService = new DatabaseService();
     }
 
-	/**
-	 * Handles the dynamic fields request for the database connector.
-	 *
-	 * @param request The request containing the request parameters for the dynamic fields.
-	 * @return A response containing the dynamic fields.
-	 */
+    /**
+     * Handles the dynamic fields request for the database connector.
+     *
+     * @param request The request containing the request parameters for the dynamic fields.
+     * @return A response containing the dynamic fields.
+     */
     public GetDynamicFieldsResponse handleDynamicFieldsRequest(GetDynamicFieldsRequest request) {
         GetDynamicFieldsResponse response = new GetDynamicFieldsResponse();
         Map<String, List<DynamicField>> fields = new HashMap<>();
@@ -138,12 +138,13 @@ public class DynamicFieldsHandler {
         return response;
     }
 
-	/**
-	 * Retrieves the list of stored procedures from the database.
-	 *
-	 * @param requestParams The request parameters containing the connection details.
-	 * @return A list of stored procedure names.
-	 */
+    /**
+     * Retrieves the list of stored procedures from the database.
+     *
+     * @param requestParams The request parameters containing the connection
+     * details.
+     * @return A list of stored procedure names.
+     */
     public List<String> getStoredProcedures(QueryGenRequestParams requestParams) {
         List<String> procedures = new ArrayList<>();
         String url = requestParams.getUrl();
@@ -170,13 +171,13 @@ public class DynamicFieldsHandler {
         return procedures;
     }
 
-	/**
-	 * Retrieves the value of a specific parameter from the request.
-	 * 
-	 * @param request The request containing the parameters.
-	 * @param paramName The name of the parameter to retrieve.
-	 * @return The value of the specified parameter, or null if not found.
-	 */
+    /**
+     * Retrieves the value of a specific parameter from the request.
+     * 
+     * @param request   The request containing the parameters.
+     * @param paramName The name of the parameter to retrieve.
+     * @return The value of the specified parameter, or null if not found.
+     */
     private String getParameterValue(GetDynamicFieldsRequest request, String paramName) {
         if (request.getConnection() != null && request.getConnection().getParameters() != null) {
             return request.getConnection().getParameters().stream()
