@@ -29,8 +29,10 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class ConnectorAction {
 
@@ -158,33 +160,80 @@ public class ConnectorAction {
     }
 
     private Property createSchemaObject(JsonObject outputSchemaJson) {
-
         JsonObject properties = outputSchemaJson.getAsJsonObject(Constant.PROPERTIES);
         if (properties == null) {
             return null;
         }
         Property outputSchemaObject = new Property("root", StringUtils.EMPTY);
-        List<Property> propertiesList = extractProperties(properties);
+        // Store definitions for reference resolution
+        JsonObject definitions = outputSchemaJson.getAsJsonObject(Constant.DEFINITIONS);
+        List<Property> propertiesList = extractProperties(properties, definitions, new HashSet<>());
         outputSchemaObject.setProperties(propertiesList);
         return outputSchemaObject;
     }
 
-    private List<Property> extractProperties(JsonObject propertiesObject) {
-
+    private List<Property> extractProperties(JsonObject propertiesObject, JsonObject definitions, Set<String> processedRefs) {
         List<Property> propertiesList = new ArrayList<>();
         for (Map.Entry<String, JsonElement> entry : propertiesObject.entrySet()) {
             String key = entry.getKey();
             JsonElement value = entry.getValue();
             if (value.isJsonObject()) {
                 JsonObject propertyObject = value.getAsJsonObject();
+
+                // Check if this is a reference to a definition
+                if (propertyObject.has(Constant.REF)) {
+                    String ref = propertyObject.get(Constant.REF).getAsString();
+                    // Handle only definitions references (#/definitions/...)
+                    if (ref.startsWith(Constant.SCHEMA_DEFINITION) && definitions != null) {
+                        String definitionKey = ref.substring(Constant.SCHEMA_DEFINITION.length());
+
+                        // Prevent circular references
+                        if (!processedRefs.contains(definitionKey)) {
+                            processedRefs.add(definitionKey);
+
+                            JsonObject definitionObj = definitions.getAsJsonObject(definitionKey);
+                            if (definitionObj != null) {
+                                // Create property with the key from the property name
+                                Property property = new Property(key, StringUtils.EMPTY);
+
+                                // Get description from the definition if available
+                                if (definitionObj.has(Constant.DESCRIPTION)) {
+                                    property.setDescription(definitionObj.get(Constant.DESCRIPTION).getAsString());
+                                }
+
+                                // Extract nested properties from the definition
+                                if (definitionObj.has(Constant.PROPERTIES)) {
+                                    List<Property> nestedProps = extractProperties(
+                                            definitionObj.getAsJsonObject(Constant.PROPERTIES),
+                                            definitions,
+                                            new HashSet<>(processedRefs)
+                                    );
+                                    property.setProperties(nestedProps);
+                                }
+
+                                propertiesList.add(property);
+                            }
+                        }
+                        continue;
+                    }
+                }
+
+                // Process regular properties (non-reference)
                 JsonElement propDescriptionObj = propertyObject.get(Constant.DESCRIPTION);
                 String propDescription = propDescriptionObj != null ?
                         propDescriptionObj.getAsString() : StringUtils.EMPTY;
+
                 Property property = new Property(key, StringUtils.EMPTY, propDescription);
+
                 if (propertyObject.has(Constant.PROPERTIES)) {
-                    List<Property> properties = extractProperties(propertyObject.getAsJsonObject(Constant.PROPERTIES));
+                    List<Property> properties = extractProperties(
+                            propertyObject.getAsJsonObject(Constant.PROPERTIES),
+                            definitions,
+                            new HashSet<>(processedRefs)
+                    );
                     property.setProperties(properties);
                 }
+
                 propertiesList.add(property);
             }
         }

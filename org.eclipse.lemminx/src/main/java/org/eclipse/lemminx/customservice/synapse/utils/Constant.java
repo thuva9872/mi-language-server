@@ -72,6 +72,8 @@ public class Constant {
     public static final String RECEIVE = "receive";
     public static final String BUILDMESSAGE = "buildmessage";
     public static final String SCHEMA = "schema";
+    public static final String REF = "$ref";
+    public static final String SCHEMA_DEFINITION = "#/definitions/";
     public static final String KEY = "key";
     public static final String ON_FAIL = "on-fail";
     public static final String FEATURE = "feature";
