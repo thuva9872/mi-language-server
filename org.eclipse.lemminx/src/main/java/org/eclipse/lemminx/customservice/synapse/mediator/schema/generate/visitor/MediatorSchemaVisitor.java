@@ -580,7 +580,9 @@ public class MediatorSchemaVisitor extends AbstractMediatorVisitor {
                         property.deleteProperty(Constant.PAYLOAD);
                     }
                 }
-                info.addOutputVariable(property);
+                if (!property.getProperties().isEmpty()) {
+                    info.addOutputVariable(property);
+                }
             }
         }
     }
