@@ -41,6 +41,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
+import com.ctc.wstx.shaded.msv_core.verifier.jarv.Const;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 
@@ -257,8 +258,20 @@ public class ConnectorDownloadManager {
              }
  
              // Download the driver from Maven repository
-             String downloadedPath = downloadDriverFromMaven(groupId, artifactId, version, driversDirectory);
-             return downloadedPath;
+			 Utils.downloadConnector(groupId, artifactId, version, driversDirectory, Constant.JAR_EXTENSION_NO_DOT);
+
+			File expectedDriverFile = new File(driversDirectory, artifactId + "-" + version + Constant.JAR_EXTENSION);
+
+			// Verify the driver file exists after the download attempt
+			if (!expectedDriverFile.exists() || !expectedDriverFile.isFile()) {
+				LOGGER.log(Level.SEVERE, "Driver JAR not found after calling Utils.downloadConnector: "
+						+ expectedDriverFile.getAbsolutePath());
+						
+				throw new IOException("Failed to download or locate driver file: " + expectedDriverFile.getName());
+			}
+
+			LOGGER.log(Level.INFO, "Driver downloaded " + expectedDriverFile.getAbsolutePath());
+			return expectedDriverFile.getAbsolutePath();
 
             } catch (IOException e) {
                 LOGGER.log(Level.SEVERE, "IOException occurred while downloading driver: " + e.getMessage());
@@ -318,37 +331,6 @@ public class ConnectorDownloadManager {
          } else {
              LOGGER.log(Level.INFO, "Driver not found in local repository: " + artifactId);
              return null;
-         }
-     }
- 
-     /**
-      * Downloads the driver JAR from Maven repository
-     * @throws IOException 
-      */
-     private static String downloadDriverFromMaven(String groupId, String artifactId, String version,
-             File targetDirectory) throws IOException {
-         if (!targetDirectory.exists()) {
-             targetDirectory.mkdirs();
-         }
-
-         String url = String.format("https://maven.wso2.org/nexus/content/groups/public/%s/%s/%s/%s-%s.jar",
-                 groupId.replace(".", "/"), artifactId, version, artifactId, version);
-         File targetFile = new File(targetDirectory, artifactId + "-" + version + Constant.JAR_EXTENSION);
-
-         LOGGER.log(Level.INFO, "Downloading driver from: " + url);
-
-         try (BufferedInputStream in = new BufferedInputStream(new URL(url).openStream());
-                 FileOutputStream fileOutputStream = new FileOutputStream(targetFile)) {
-             byte[] dataBuffer = new byte[1024];
-             int bytesRead;
-             while ((bytesRead = in.read(dataBuffer, 0, 1024)) != -1) {
-                 fileOutputStream.write(dataBuffer, 0, bytesRead);
-             }
-             LOGGER.log(Level.INFO, "Driver downloaded successfully: " + targetFile.getAbsolutePath());
-             return targetFile.getAbsolutePath();
-         } catch (IOException e) {
-             LOGGER.log(Level.SEVERE, "Error occurred while downloading driver: " + e.getMessage());
-             throw e;
          }
      }
 }

@@ -648,11 +648,6 @@ public class SynapseLanguageService implements ISynapseLanguageService {
                 projectUri,
                 request.getConnectorName(),
                 request.getConnectionType());
-        if (!StringUtils.isEmpty(message)) {
-            String driverJarPath = message.substring(0, message.lastIndexOf(File.separator));
-            // update the class loader with the new driver jar file
-            DriverLoader.loadDriverJar(driverJarPath);
-        }
         return CompletableFuture.supplyAsync(() -> message);
     }
 
