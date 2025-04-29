@@ -630,25 +630,28 @@ public class SynapseLanguageService implements ISynapseLanguageService {
     @Override
     public CompletableFuture<Map<String, List<DynamicField>>> getDynamicFields(GetDynamicFieldsRequest request) {
 
-        DriverLoader.loadTempDrivers(projectUri);
-        return CompletableFuture.supplyAsync(() -> dynamicFieldsHandler.handleDynamicFieldsRequest(request).getFields());
+        return CompletableFuture.supplyAsync(() -> {
+            DriverLoader.loadTempDrivers(projectUri);
+            return dynamicFieldsHandler.handleDynamicFieldsRequest(request).getFields();
+        });
     }
 
     @Override
     public CompletableFuture<List<String>> getStoredProcedures(QueryGenRequestParams request) {
 
-        DriverLoader.loadTempDrivers(projectUri);
-        return CompletableFuture.supplyAsync(() -> dynamicFieldsHandler.getStoredProcedures(request));
+        return CompletableFuture.supplyAsync(() -> {
+            DriverLoader.loadTempDrivers(projectUri);
+            return dynamicFieldsHandler.getStoredProcedures(request);
+        });
     }
 
     @Override
     public CompletableFuture<String> downloadDriverForConnector(DriverDownloadRequest request) {
 
-        String message = ConnectorDownloadManager.downloadDriverForConnector(
+        return CompletableFuture.supplyAsync(() -> ConnectorDownloadManager.downloadDriverForConnector(
                 projectUri,
                 request.getConnectorName(),
-                request.getConnectionType());
-        return CompletableFuture.supplyAsync(() -> message);
+                request.getConnectionType()));
     }
 
     public String getProjectUri() {
