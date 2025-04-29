@@ -321,7 +321,7 @@ public class ConnectorDownloadManager {
          String localMavenRepo = Path.of(System.getProperty(Constant.USER_HOME), Constant.M2,
                  Constant.REPOSITORY).toString();
          String artifactPath = Path.of(localMavenRepo, groupId.replace(".", File.separator), artifactId,
-                 version, artifactId + "-" + version + ".jar").toString();
+                 version, artifactId + "-" + version + Constant.JAR_EXTENSION).toString();
          File artifactFile = new File(artifactPath);
  
          if (artifactFile.exists()) {
