@@ -88,7 +88,7 @@ public class ConnectorDownloadManager {
                 } else {
                     LOGGER.log(Level.INFO, "Downloading dependency: " + connector.getName());
                     Utils.downloadConnector(dependency.getGroupId(), dependency.getArtifact(),
-                            dependency.getVersion(), downloadDirectory);
+                            dependency.getVersion(), downloadDirectory, Constant.ZIP_EXTENSION_NO_DOT);
                 }
             } catch (Exception e) {
                 String failedDependency = dependency.getGroupId() + "-" + dependency.getArtifact() + "-" + dependency.getVersion();

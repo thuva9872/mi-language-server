@@ -1357,11 +1357,6 @@ public class Utils {
         return sanitizedTag;
     }
 
-    public static void downloadConnector(String groupId, String artifactId, String version, File targetDirectory)
-            throws IOException {
-        downloadConnector(groupId, artifactId, version, targetDirectory, Constant.ZIP_EXTENSION_NO_DOT);
-    }
-
     public static void downloadConnector(String groupId, String artifactId, String version, File targetDirectory,
             String fileType) throws IOException {
 

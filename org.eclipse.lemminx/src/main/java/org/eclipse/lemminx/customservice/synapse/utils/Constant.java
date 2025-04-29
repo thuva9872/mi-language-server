@@ -524,8 +524,8 @@ public class Constant {
     public static final String CONNECTION_NAME = "connectionName";
     public static final String ZIP_EXTENSION = ".zip";
     public static final String JAR_EXTENSION = ".jar";
-	public static final String ZIP_EXTENSION_NO_DOT = "zip";
-	public static final String JAR_EXTENSION_NO_DOT = "jar";
+    public static final String ZIP_EXTENSION_NO_DOT = "zip";
+    public static final String JAR_EXTENSION_NO_DOT = "jar";
     public static final String CONNECTORS = "connectors";
     public static final String USER_HOME = "user.home";
     public static final String MAIN = "main";
