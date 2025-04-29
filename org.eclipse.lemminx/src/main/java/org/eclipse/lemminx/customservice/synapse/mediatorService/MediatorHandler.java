@@ -232,24 +232,6 @@ public class MediatorHandler {
             List<LinkedTreeMap> dataValueList = (List) data;
             StringBuilder dataValueStr = new StringBuilder("[");
             for (LinkedTreeMap dataValueItem : dataValueList) {
-                if (dataValueItem.get(Constant.PROPERTY_NAME) != null && dataValueItem.get(Constant.PROPERTY_VALUE) != null) {
-                    Object propertyValue;
-                    if (dataValueItem.get(Constant.PROPERTY_VALUE) instanceof LinkedTreeMap) {
-                        LinkedTreeMap dataValueLinkedTree = (LinkedTreeMap) dataValueItem.get(Constant.PROPERTY_VALUE);
-                        propertyValue = dataValueLinkedTree.get(Constant.VALUE);
-                    } else {
-                        propertyValue = dataValueItem.get(Constant.PROPERTY_VALUE);
-                    }
-                    dataValueStr.append(String.format("[\"%s\",\"%s\"],",
-                            dataValueItem.get(Constant.PROPERTY_NAME), propertyValue));
-                }
-            }
-            dataValueStr.append(']');
-            dataValue.put(Constant.VALUE, String.format("%s", dataValueStr));
-        } else if (data instanceof List) {
-            List<LinkedTreeMap> dataValueList = (List) data;
-            StringBuilder dataValueStr = new StringBuilder("[");
-            for (LinkedTreeMap dataValueItem : dataValueList) {
                 if (dataValueItem.get(Constant.PROPERTY_NAME) != null
                         && dataValueItem.get(Constant.PROPERTY_VALUE) != null) {
                     Object propertyValue;
