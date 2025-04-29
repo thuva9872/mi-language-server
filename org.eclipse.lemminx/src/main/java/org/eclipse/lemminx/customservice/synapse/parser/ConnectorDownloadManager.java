@@ -45,6 +45,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 
 import static org.eclipse.lemminx.customservice.synapse.parser.pom.PomParser.getPomDetails;
+import org.apache.commons.lang3.StringUtils;
 
 public class ConnectorDownloadManager {
 
@@ -229,8 +230,7 @@ public class ConnectorDownloadManager {
              String groupId = (String) driverInfo.get(Constant.GROUP_ID_KEY);
              String artifactId = (String) driverInfo.get(Constant.ARTIFACT_ID_KEY);
              String version = (String) driverInfo.get(Constant.VERSION_KEY);
- 
-             if (groupId == null || artifactId == null || version == null) {
+             if (StringUtils.isAnyBlank(groupId, artifactId, version)) {
                  LOGGER.log(Level.SEVERE, "Invalid driver coordinates in descriptor");
                  return null;
              }
@@ -257,20 +257,20 @@ public class ConnectorDownloadManager {
              }
  
              // Download the driver from Maven repository
-			 Utils.downloadConnector(groupId, artifactId, version, driversDirectory, Constant.JAR_EXTENSION_NO_DOT);
+             Utils.downloadConnector(groupId, artifactId, version, driversDirectory, Constant.JAR_EXTENSION_NO_DOT);
 
-			File expectedDriverFile = new File(driversDirectory, artifactId + "-" + version + Constant.JAR_EXTENSION);
+            File expectedDriverFile = new File(driversDirectory, artifactId + "-" + version + Constant.JAR_EXTENSION);
 
-			// Verify the driver file exists after the download attempt
-			if (!expectedDriverFile.exists() || !expectedDriverFile.isFile()) {
-				LOGGER.log(Level.SEVERE, "Driver JAR not found after calling Utils.downloadConnector: "
-						+ expectedDriverFile.getAbsolutePath());
-						
-				throw new IOException("Failed to download or locate driver file: " + expectedDriverFile.getName());
-			}
+            // Verify the driver file exists after the download attempt
+            if (!expectedDriverFile.exists() || !expectedDriverFile.isFile()) {
+                LOGGER.log(Level.SEVERE, "Driver JAR not found after calling Utils.downloadConnector: "
+                        + expectedDriverFile.getAbsolutePath());
+                        
+                throw new IOException("Failed to download or locate driver file: " + expectedDriverFile.getName());
+            }
 
-			LOGGER.log(Level.INFO, "Driver downloaded " + expectedDriverFile.getAbsolutePath());
-			return expectedDriverFile.getAbsolutePath();
+            LOGGER.log(Level.INFO, "Driver downloaded " + expectedDriverFile.getAbsolutePath());
+            return expectedDriverFile.getAbsolutePath();
 
             } catch (IOException e) {
                 LOGGER.log(Level.SEVERE, "IOException occurred while downloading driver: " + e.getMessage());

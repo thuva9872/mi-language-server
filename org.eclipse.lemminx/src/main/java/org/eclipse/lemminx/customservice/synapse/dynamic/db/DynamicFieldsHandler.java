@@ -30,6 +30,7 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.lemminx.customservice.synapse.dataService.QueryGenRequestParams;
 import org.eclipse.lemminx.customservice.synapse.db.DBConnectionTester;
 
@@ -93,7 +94,7 @@ public class DynamicFieldsHandler {
                     return response;
                 }
 
-                if (FIELD_TABLE.equals(fieldName) && selectedValue != null) {
+                if (FIELD_TABLE.equals(fieldName) && !StringUtils.isBlank(selectedValue)) {
                     List<DynamicField> dynamicData = null;
                     switch (operationName) {
                         case OP_SELECT:
@@ -122,7 +123,7 @@ public class DynamicFieldsHandler {
                     if (!FIELD_TABLE.equals(fieldName)) {
                         log.log(Level.FINE, "Dynamic fields requested for field other than 'table': " + fieldName);
                     }
-                    if (selectedValue == null && FIELD_TABLE.equals(fieldName)) {
+                    if(StringUtils.isBlank(selectedValue) && FIELD_TABLE.equals(fieldName)) {
                         log.log(Level.WARNING, "Selected value (table/procedure name) is null for field 'table'.");
                     }
                 }

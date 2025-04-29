@@ -27,7 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.eclipse.lemminx.utils.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 public class DatabaseService {
     private static final Logger LOGGER = Logger.getLogger(DatabaseService.class.getName());
@@ -79,7 +79,7 @@ public class DatabaseService {
 
                     value.setHelpTip("Column type: " + dataType);
                     value.setPlaceholder("Enter " + columnName);
-                    value.setDefaultValue("");
+                    value.setDefaultValue(StringUtils.EMPTY);
 
                     field.setValue(value);
                     fields.add(field);
@@ -134,7 +134,7 @@ public class DatabaseService {
                                     : BOOLEAN_FALSE);
                     value.setHelpTip("Parameter type: " + dataType);
                     value.setPlaceholder("Enter " + parameterName);
-                    value.setDefaultValue("");
+                    value.setDefaultValue(StringUtils.EMPTY);
 
                     field.setValue(value);
                     fields.add(field);
@@ -156,10 +156,10 @@ public class DatabaseService {
      */
     private String toXmlSafeName(String name) {
         if (StringUtils.isEmpty(name)) {
-            return "";
+            return StringUtils.EMPTY;
         }
 
-        return name.replaceAll("[^a-zA-Z0-9]", "");
+        return name.replaceAll("[^a-zA-Z0-9]", StringUtils.EMPTY);
     }
 
     private String mapSqlTypeToInputType(String sqlType) {
