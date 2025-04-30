@@ -99,6 +99,11 @@ import org.eclipse.lemminx.customservice.synapse.connectors.SchemaGenerate;
 import org.eclipse.lemminx.customservice.synapse.definition.SynapseDefinitionProvider;
 import org.eclipse.lemminx.customservice.synapse.directoryTree.DirectoryMapResponse;
 import org.eclipse.lemminx.customservice.synapse.directoryTree.DirectoryTreeBuilder;
+import org.eclipse.lemminx.customservice.synapse.driver.DriverDownloadRequest;
+import org.eclipse.lemminx.customservice.synapse.driver.DriverLoader;
+import org.eclipse.lemminx.customservice.synapse.dynamic.db.DynamicField;
+import org.eclipse.lemminx.customservice.synapse.dynamic.db.DynamicFieldsHandler;
+import org.eclipse.lemminx.customservice.synapse.dynamic.db.GetDynamicFieldsRequest;
 import org.eclipse.lemminx.customservice.synapse.schemagen.util.FileType;
 import org.eclipse.lemminx.customservice.synapse.schemagen.util.SchemaGenFromContentRequest;
 import org.eclipse.lemminx.customservice.synapse.schemagen.util.SchemaGenRequest;
@@ -114,6 +119,7 @@ import org.eclipse.lemminx.customservice.synapse.utils.Utils;
 import org.eclipse.lemminx.extensions.contentmodel.settings.XMLValidationSettings;
 import org.eclipse.lemminx.services.extensions.completion.ICompletionResponse;
 import org.eclipse.lemminx.settings.SharedSettings;
+import org.eclipse.lemminx.utils.StringUtils;
 import org.eclipse.lsp4j.DefinitionParams;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Location;
@@ -155,6 +161,7 @@ public class SynapseLanguageService implements ISynapseLanguageService {
     private TryOutManager tryOutManager;
     private String miServerPath;
     private ExpressionHelperProvider expressionHelperProvider;
+    private DynamicFieldsHandler dynamicFieldsHandler;
 
     public SynapseLanguageService(XMLTextDocumentService xmlTextDocumentService, XMLLanguageServer xmlLanguageServer) {
 
@@ -164,6 +171,7 @@ public class SynapseLanguageService implements ISynapseLanguageService {
         this.inboundConnectorHolder = new InboundConnectorHolder();
         mediatorHandler = new MediatorHandler();
         connectionHandler = new ConnectionHandler();
+        this.dynamicFieldsHandler = new DynamicFieldsHandler();
     }
 
     public void init(String projectUri, Object settings, SynapseLanguageClientAPI languageClient) {
@@ -219,6 +227,7 @@ public class SynapseLanguageService implements ISynapseLanguageService {
     @Override
     public CompletableFuture<DBConnectionTestResponse> testDBConnection(DBConnectionTestParams dbConnectionTestParams) {
 
+        DriverLoader.loadTempDrivers(projectUri);
         DBConnectionTester dbConnectionTester = new DBConnectionTester();
         boolean connectionStatus = dbConnectionTester.testDBConnection(dbConnectionTestParams.dbType,
                 dbConnectionTestParams.username, dbConnectionTestParams.password,
@@ -616,6 +625,33 @@ public class SynapseLanguageService implements ISynapseLanguageService {
     public CompletableFuture<ArtifactTypeResponse> getArtifactType(TextDocumentIdentifier artifactIdentifier) {
 
         return CompletableFuture.supplyAsync(() -> SyntaxTreeGenerator.getArtifactType(artifactIdentifier.getUri()));
+    }
+
+    @Override
+    public CompletableFuture<Map<String, List<DynamicField>>> getDynamicFields(GetDynamicFieldsRequest request) {
+
+        return CompletableFuture.supplyAsync(() -> {
+            DriverLoader.loadTempDrivers(projectUri);
+            return dynamicFieldsHandler.handleDynamicFieldsRequest(request).getFields();
+        });
+    }
+
+    @Override
+    public CompletableFuture<List<String>> getStoredProcedures(QueryGenRequestParams request) {
+
+        return CompletableFuture.supplyAsync(() -> {
+            DriverLoader.loadTempDrivers(projectUri);
+            return dynamicFieldsHandler.getStoredProcedures(request);
+        });
+    }
+
+    @Override
+    public CompletableFuture<String> downloadDriverForConnector(DriverDownloadRequest request) {
+
+        return CompletableFuture.supplyAsync(() -> ConnectorDownloadManager.downloadDriverForConnector(
+                projectUri,
+                request.getConnectorName(),
+                request.getConnectionType()));
     }
 
     public String getProjectUri() {

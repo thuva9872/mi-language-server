@@ -46,6 +46,9 @@ import org.eclipse.lemminx.customservice.synapse.debugger.entity.ValidationRespo
 import org.eclipse.lemminx.customservice.synapse.dependency.tree.pojo.DependencyTree;
 import org.eclipse.lemminx.customservice.synapse.dependency.tree.pojo.OverviewModel;
 import org.eclipse.lemminx.customservice.synapse.directoryTree.DirectoryMapResponse;
+import org.eclipse.lemminx.customservice.synapse.driver.DriverDownloadRequest;
+import org.eclipse.lemminx.customservice.synapse.dynamic.db.DynamicField;
+import org.eclipse.lemminx.customservice.synapse.dynamic.db.GetDynamicFieldsRequest;
 import org.eclipse.lemminx.customservice.synapse.expression.pojo.ExpressionParam;
 import org.eclipse.lemminx.customservice.synapse.expression.pojo.HelperPanelData;
 import org.eclipse.lemminx.customservice.synapse.inbound.conector.InboundConnectorResponse;
@@ -243,4 +246,13 @@ public interface ISynapseLanguageService {
 
     @JsonRequest
     CompletableFuture<ArtifactTypeResponse> getArtifactType(TextDocumentIdentifier artifactIdentifier);
+
+    @JsonRequest
+    CompletableFuture<Map<String, List<DynamicField>>> getDynamicFields(GetDynamicFieldsRequest request);
+
+    @JsonRequest
+    CompletableFuture<List<String>> getStoredProcedures(QueryGenRequestParams requestParams);
+
+    @JsonRequest
+    CompletableFuture<String> downloadDriverForConnector(DriverDownloadRequest request);
 }
