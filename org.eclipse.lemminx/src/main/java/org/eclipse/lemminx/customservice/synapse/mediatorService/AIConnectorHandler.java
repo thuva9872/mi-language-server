@@ -481,7 +481,14 @@ public class AIConnectorHandler {
             }
             if (Constant.ATTRIBUTE.equals(elementObj.get(Constant.TYPE).getAsString())) {
                 JsonObject valueObj = elementObj.getAsJsonObject(Constant.VALUE);
-                if (valueObj.get(Constant.INPUT_TYPE).getAsString().matches("^(?!.*combo.*)(?i).*expression$")) {
+                String inputType = valueObj.get(Constant.INPUT_TYPE).getAsString();
+                boolean isExpression = inputType.matches("^(?!.*combo.*)(?i).*expression$");
+                boolean isExpressionTextArea = Constant.EXPRESSION_TEXT_AREA.equals(inputType);
+                if (isExpression || isExpressionTextArea) {
+                    if (isExpressionTextArea) {
+                        // Convert the expressionTextArea to stringOrExpression to support AI values
+                        valueObj.addProperty(Constant.INPUT_TYPE, "stringOrExpression");
+                    }
                     valueObj.addProperty(SUPPORTS_AI_VALUES, true);
                     addParameterDescriptionField(valueObj, template);
                 }
@@ -800,7 +807,7 @@ public class AIConnectorHandler {
             Position templateOpenTagEndPosition = template.getRange().getStartTagRange().getEnd();
             editRange = new Range(templateOpenTagEndPosition, templateOpenTagEndPosition);
         }
-        String descriptionXml = String.format("<description>%s</description>", description);
+        String descriptionXml = String.format("<description>%s</description>", Utils.escapeXML(description));
         agentEditResponse.addTextEdit(new DocumentTextEdit(editRange, descriptionXml, sequenceTemplatePath));
     }
 
@@ -833,9 +840,11 @@ public class AIConnectorHandler {
         Range templateParameterRange = getTemplateParameterRange(template);
         StringBuilder parameterXmlBuilder = new StringBuilder();
         for (Map.Entry<String, Map<String, String>> entry : templateParameters.entrySet()) {
+            String name = Utils.escapeXML(entry.getKey());
+            String isMandatory = Utils.escapeXML(entry.getValue().get(Constant.IS_MANDATORY));
+            String description = Utils.escapeXML(entry.getValue().get(Constant.DESCRIPTION));
             String newParameter = String.format("<parameter name=\"%s\" isMandatory=\"%s\" description=\"%s\"/>%n",
-                    entry.getKey(), entry.getValue().get(Constant.IS_MANDATORY),
-                    entry.getValue().get(Constant.DESCRIPTION));
+                    name, isMandatory, description);
             parameterXmlBuilder.append(newParameter);
         }
         TextEdit parameterEdit =
