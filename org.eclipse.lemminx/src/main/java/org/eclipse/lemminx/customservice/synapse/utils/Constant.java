@@ -605,6 +605,7 @@ public class Constant {
     public static final String DEFAULT_REQUEST = "defaultRequest";
     public static final String CONTENT = "content";
     public static final String IS_CDATA = "isCDATA";
+    public static final String EXPRESSION_TEXT_AREA = "expressionTextArea";
 
     static {
         // AI Connection to Display Name bi-Mapping
