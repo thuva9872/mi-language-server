@@ -18,39 +18,43 @@
 
 package org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.filter.throttle;
 
-public class Policy extends OperatorContentType {
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.STNode;
 
-    Object otherAttributes;
-    String name;
-    ID id;
+import java.util.List;
 
-    public Object getOtherAttributes() {
+public class ThrottlePolicies extends STNode {
 
-        return otherAttributes;
+    private int maximumConcurrentAccess;
+    private List<ThrottlePolicy> policies;
+    String key;
+
+    public String getKey() {
+
+        return key;
     }
 
-    public void setOtherAttributes(Object otherAttributes) {
+    public void setKey(String key) {
 
-        this.otherAttributes = otherAttributes;
+        this.key = key;
     }
 
-    public String getName() {
+    public int getMaximumConcurrentAccess() {
 
-        return name;
+        return maximumConcurrentAccess;
     }
 
-    public void setName(String name) {
+    public void setMaximumConcurrentAccess(int maximumConcurrentAccess) {
 
-        this.name = name;
+        this.maximumConcurrentAccess = maximumConcurrentAccess;
     }
 
-    public ID getId() {
+    public List<ThrottlePolicy> getPolicies() {
 
-        return id;
+        return policies;
     }
 
-    public void setId(ID id) {
+    public void setPolicies(List<ThrottlePolicy> policies) {
 
-        this.id = id;
+        this.policies = policies;
     }
 }

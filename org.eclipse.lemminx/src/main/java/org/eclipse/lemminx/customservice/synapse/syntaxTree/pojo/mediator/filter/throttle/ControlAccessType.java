@@ -18,30 +18,39 @@
 
 package org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.filter.throttle;
 
-import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.STNode;
+public class ControlAccessType implements AccessType {
 
-public class ThrottlePolicy extends STNode {
+    private int maximumCount;
+    private int unitTime;
+    private int prohibitTimePeriod;
 
-    private ID id;
-    private AccessType accessType;
+    public int getMaximumCount() {
 
-    public ID getId() {
-
-        return id;
+        return maximumCount;
     }
 
-    public void setId(ID id) {
+    public void setMaximumCount(int maximumCount) {
 
-        this.id = id;
+        this.maximumCount = maximumCount;
     }
 
-    public AccessType getAccessType() {
+    public int getUnitTime() {
 
-        return accessType;
+        return unitTime;
     }
 
-    public void setAccessType(AccessType accessType) {
+    public void setUnitTime(int unitTime) {
 
-        this.accessType = accessType;
+        this.unitTime = unitTime;
+    }
+
+    public int getProhibitTimePeriod() {
+
+        return prohibitTimePeriod;
+    }
+
+    public void setProhibitTimePeriod(int prohibitTimePeriod) {
+
+        this.prohibitTimePeriod = prohibitTimePeriod;
     }
 }

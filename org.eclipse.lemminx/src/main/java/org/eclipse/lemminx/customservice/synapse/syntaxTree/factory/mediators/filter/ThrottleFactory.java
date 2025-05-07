@@ -21,10 +21,13 @@ package org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.mediators.f
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.mediators.AbstractMediatorFactory;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.STNode;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.Mediator;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.filter.throttle.AccessType;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.filter.throttle.AllowAccessType;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.filter.throttle.ControlAccessType;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.filter.throttle.DenyAccessType;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.filter.throttle.ID;
-import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.filter.throttle.MediatorThrottleAssertion;
-import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.filter.throttle.Policy;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.filter.throttle.Throttle;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.filter.throttle.ThrottlePolicies;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.filter.throttle.ThrottlePolicy;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.misc.common.Sequence;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.utils.SyntaxTreeUtils;
@@ -50,8 +53,8 @@ public class ThrottleFactory extends AbstractMediatorFactory {
         if (children != null && !children.isEmpty()) {
             for (DOMNode child : children) {
                 if (child.getNodeName().equalsIgnoreCase(Constant.POLICY)) {
-                    ThrottlePolicy throttlePolicy = createThrottlePolicy(child);
-                    throttle.setPolicy(throttlePolicy);
+                    ThrottlePolicies throttlePolicy = createThrottlePolicy(child);
+                    throttle.setPolicies(throttlePolicy);
                 } else if (child.getNodeName().equalsIgnoreCase(Constant.ON_ACCEPT)) {
                     Sequence onAccept = SyntaxTreeUtils.createSequence(child);
                     throttle.setOnAccept(onAccept);
@@ -86,73 +89,107 @@ public class ThrottleFactory extends AbstractMediatorFactory {
         }
     }
 
-    private ThrottlePolicy createThrottlePolicy(DOMNode node) {
+    private ThrottlePolicies createThrottlePolicy(DOMNode node) {
 
-        ThrottlePolicy throttlePolicy = new ThrottlePolicy();
-        throttlePolicy.elementNode((DOMElement) node);
+        ThrottlePolicies throttlePolicies = new ThrottlePolicies();
+        throttlePolicies.elementNode((DOMElement) node);
         String key = node.getAttribute(Constant.KEY);
         if (key != null) {
-            throttlePolicy.setKey(key);
+            throttlePolicies.setKey(key);
         }
-        List<DOMNode> children = node.getChildren();
-        if (children != null && !children.isEmpty()) {
-            List<Policy> policies = new ArrayList<>();
-            for (DOMNode child : children) {
-                if (child.getNodeName().equalsIgnoreCase(Constant.WSP_POLICY)) {
-                    Policy policy = createPolicy(child);
-                    policies.add(policy);
+        DOMNode wspPolicy = Utils.getChildNodeByName(node, Constant.WSP_POLICY);
+        if (wspPolicy == null) {
+            return throttlePolicies;
+        }
+        DOMNode mediatorThrottleAssertion =
+                Utils.getChildNodeByName(wspPolicy, Constant.THROTTLE_MEDIATOR_THROTTLE_ASSERTION);
+        if (mediatorThrottleAssertion == null) {
+            return throttlePolicies;
+        }
+        List<DOMNode> mediatorThrottleAssertionChildren = mediatorThrottleAssertion.getChildren();
+        if (mediatorThrottleAssertionChildren != null) {
+            List<ThrottlePolicy> policies = new ArrayList<>();
+            for (DOMNode mediatorThrottleAssertionChild : mediatorThrottleAssertionChildren) {
+                if (Constant.THROTTLE_MAXIMUM_CONCURRENT_ACCESS.equals(mediatorThrottleAssertionChild.getNodeName())) {
+                    String maximumConcurrentAccessStr =
+                            Utils.getInlineString(mediatorThrottleAssertionChild.getFirstChild());
+                    int maximumConcurrentAccess = Utils.parseInt(maximumConcurrentAccessStr);
+                    if (maximumConcurrentAccess != -1) {
+                        throttlePolicies.setMaximumConcurrentAccess(maximumConcurrentAccess);
+                    }
+                } else if (Constant.WSP_POLICY.equals(mediatorThrottleAssertionChild.getNodeName())) {
+                    ThrottlePolicy throttlePolicy = createPolicy(mediatorThrottleAssertionChild);
+                    policies.add(throttlePolicy);
                 }
             }
-            throttlePolicy.setContent(policies.toArray(new Policy[policies.size()]));
+            throttlePolicies.setPolicies(policies);
         }
-        return throttlePolicy;
+        return throttlePolicies;
     }
 
-    private Policy createPolicy(DOMNode node) {
+    private ThrottlePolicy createPolicy(DOMNode node) {
 
-        Policy policy = new Policy();
+        ThrottlePolicy policy = new ThrottlePolicy();
         policy.elementNode((DOMElement) node);
-        String name = node.getAttribute(Constant.NAME);
-        if (name != null) {
-            policy.setName(name);
-        }
         List<DOMNode> children = node.getChildren();
         if (children != null && !children.isEmpty()) {
-            List<Object> stElements = new ArrayList<>();
             for (DOMNode child : children) {
-                String name1 = child.getNodeName();
-                if (name1.equalsIgnoreCase(Constant.THROTTLE_MEDIATOR_THROTTLE_ASSERTION)) {
-                    MediatorThrottleAssertion mediatorThrottleAssertion = createMediatorThrottleAssertion(child);
-                    stElements.add(mediatorThrottleAssertion);
-                } else if (name1.equalsIgnoreCase(Constant.THROTTLE_ID)) {
+                if (Constant.THROTTLE_ID.equals(child.getNodeName())) {
                     ID id = createID(child);
                     policy.setId(id);
-                } else if (name1.equalsIgnoreCase(Constant.WSP_POLICY)) {
-                    Policy childPolicy = createPolicy(child);
-                    stElements.add(childPolicy);
-                    // TODO: check if the following logic is correct
-                } else if (name1.equalsIgnoreCase(Constant.THROTTLE_ALLOW) || name1.equalsIgnoreCase(
-                        Constant.THROTTLE_DENY) || name1.equalsIgnoreCase(Constant.THROTTLE_CONTROL)) {
-                    STNode accessType = new STNode();
-                    accessType.elementNode((DOMElement) child);
-                    stElements.add(accessType);
-                } else if (name1.equalsIgnoreCase(Constant.THROTTLE_MAXIMUM_COUNT)) {
-                    STNode maximumCount = new STNode();
-                    maximumCount.elementNode((DOMElement) child);
-                    stElements.add(maximumCount);
-                } else if (name1.equalsIgnoreCase(Constant.THROTTLE_UNIT_TIME)) {
-                    STNode unitTime = new STNode();
-                    unitTime.elementNode((DOMElement) child);
-                    stElements.add(unitTime);
-                } else if (name1.equalsIgnoreCase(Constant.THROTTLE_PROHIBIT_TIME_PERIOD)) {
-                    STNode prohibitTimePeriod = new STNode();
-                    prohibitTimePeriod.elementNode((DOMElement) child);
-                    stElements.add(prohibitTimePeriod);
+                } else if (Constant.WSP_POLICY.equals(child.getNodeName())) {
+                    List<DOMNode> policyChildren = child.getChildren();
+                    if (policyChildren != null && !policyChildren.isEmpty()) {
+                        for (DOMNode policyChild : policyChildren) {
+                            AccessType accessType = null;
+                            if (Constant.THROTTLE_ALLOW.equals(policyChild.getNodeName())) {
+                                accessType = new AllowAccessType();
+                            } else if (Constant.THROTTLE_DENY.equals(policyChild.getNodeName())) {
+                                accessType = new DenyAccessType();
+                            } else if (Constant.THROTTLE_CONTROL.equals(policyChild.getNodeName())) {
+                                accessType = createControlAccessType(policyChild);
+                            }
+                            policy.setAccessType(accessType);
+                        }
+                    }
                 }
             }
-            policy.setPolicyOrAllOrExactlyOne(stElements);
         }
         return policy;
+    }
+
+    private AccessType createControlAccessType(DOMNode policy) {
+
+        ControlAccessType controlAccessType = new ControlAccessType();
+        DOMNode wspPolicy = Utils.getChildNodeByName(policy, Constant.WSP_POLICY);
+        if (wspPolicy == null) {
+            return controlAccessType;
+        }
+        List<DOMNode> children = wspPolicy.getChildren();
+        if (children != null && !children.isEmpty()) {
+            for (DOMNode child : children) {
+                if (Constant.THROTTLE_MAXIMUM_COUNT.equals(child.getNodeName())) {
+                    String maximumCountStr = Utils.getInlineString(child.getFirstChild());
+                    int maximumCount = Utils.parseInt(maximumCountStr);
+                    if (maximumCount != -1) {
+                        controlAccessType.setMaximumCount(maximumCount);
+                    }
+                } else if (Constant.THROTTLE_UNIT_TIME.equals(child.getNodeName())) {
+                    String timeUnitStr = Utils.getInlineString(child.getFirstChild());
+                    int timeUnit = Utils.parseInt(timeUnitStr);
+                    if (timeUnit != -1) {
+                        controlAccessType.setUnitTime(timeUnit);
+                    }
+                } else if (Constant.THROTTLE_PROHIBIT_TIME_PERIOD.equals(child.getNodeName())) {
+                    String timePeriodStr = Utils.getInlineString(child.getFirstChild());
+                    int timePeriod = Utils.parseInt(timePeriodStr);
+                    if (timePeriod != -1) {
+                        controlAccessType.setProhibitTimePeriod(timePeriod);
+                    }
+                }
+            }
+        }
+        return controlAccessType;
     }
 
     private ID createID(DOMNode node) {
@@ -169,28 +206,6 @@ public class ThrottleFactory extends AbstractMediatorFactory {
             id.setValue(value);
         }
         return id;
-    }
-
-    private MediatorThrottleAssertion createMediatorThrottleAssertion(DOMNode node) {
-
-        MediatorThrottleAssertion mediatorThrottleAssertion = new MediatorThrottleAssertion();
-        mediatorThrottleAssertion.elementNode((DOMElement) node);
-        List<DOMNode> children = node.getChildren();
-        List<Policy> policies = new ArrayList<>();
-        if (children != null && !children.isEmpty()) {
-            for (DOMNode child : children) {
-                if (child.getNodeName().equalsIgnoreCase(Constant.WSP_POLICY)) {
-                    Policy policy = createPolicy(child);
-                    policies.add(policy);
-                } else if (child.getNodeName().equalsIgnoreCase(Constant.THROTTLE_MAXIMUM_CONCURRENT_ACCESS)) {
-                    STNode maximumConcurrentAccess = new STNode();
-                    maximumConcurrentAccess.elementNode((DOMElement) child);
-                    mediatorThrottleAssertion.setMaximumConcurrentAccess(maximumConcurrentAccess);
-                }
-            }
-            mediatorThrottleAssertion.setPolicy(policies.toArray(new Policy[policies.size()]));
-        }
-        return mediatorThrottleAssertion;
     }
 
     @Override

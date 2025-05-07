@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023, WSO2 LLC. (http://www.wso2.com).
+ * Copyright (c) 2025, WSO2 LLC. (http://www.wso2.com).
  *
  * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -18,21 +18,6 @@
 
 package org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.filter.throttle;
 
-import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.STNode;
+public class DenyAccessType implements AccessType {
 
-import java.util.List;
-
-public class OperatorContentType extends STNode {
-
-    List<Object> policyOrAllOrExactlyOne;
-
-    public List<Object> getPolicyOrAllOrExactlyOne() {
-
-        return policyOrAllOrExactlyOne;
-    }
-
-    public void setPolicyOrAllOrExactlyOne(List<Object> policyOrAllOrExactlyOne) {
-
-        this.policyOrAllOrExactlyOne = policyOrAllOrExactlyOne;
-    }
 }

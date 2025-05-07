@@ -321,8 +321,8 @@ public class MediatorDependencyVisitor extends AbstractMediatorVisitor {
 
         addAnonymousOrAttributeSequence(node.getOnAccept(), node.getOnAcceptAttribute());
         addAnonymousOrAttributeSequence(node.getOnReject(), node.getOnRejectAttribute());
-        if (node.getPolicy() != null && node.getPolicy().getKey() != null) {
-            addSimpleDependency(node.getPolicy().getKey(), ArtifactType.THROTTLE_POLICY.name(),
+        if (node.getPolicies() != null && node.getPolicies().getKey() != null) {
+            addSimpleDependency(node.getPolicies().getKey(), ArtifactType.THROTTLE_POLICY.name(),
                     ArtifactType.THROTTLE_POLICY);
         }
     }
