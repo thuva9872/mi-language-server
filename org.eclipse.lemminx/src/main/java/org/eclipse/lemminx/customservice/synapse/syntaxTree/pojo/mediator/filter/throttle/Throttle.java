@@ -23,7 +23,7 @@ import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.misc.common.Seq
 
 public class Throttle extends Mediator {
 
-    ThrottlePolicy policy;
+    ThrottlePolicies policies;
     Sequence onAccept;
     Sequence onReject;
     String id;
@@ -35,14 +35,14 @@ public class Throttle extends Mediator {
         setDisplayName("Throttle");
     }
 
-    public ThrottlePolicy getPolicy() {
+    public ThrottlePolicies getPolicies() {
 
-        return policy;
+        return policies;
     }
 
-    public void setPolicy(ThrottlePolicy policy) {
+    public void setPolicies(ThrottlePolicies policies) {
 
-        this.policy = policy;
+        this.policies = policies;
     }
 
     public Sequence getOnAccept() {

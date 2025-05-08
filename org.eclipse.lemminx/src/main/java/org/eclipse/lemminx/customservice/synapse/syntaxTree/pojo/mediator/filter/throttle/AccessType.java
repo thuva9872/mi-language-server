@@ -18,30 +18,6 @@
 
 package org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.filter.throttle;
 
-import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.STNode;
+public interface AccessType {
 
-public class ThrottlePolicy extends STNode {
-
-    private ID id;
-    private AccessType accessType;
-
-    public ID getId() {
-
-        return id;
-    }
-
-    public void setId(ID id) {
-
-        this.id = id;
-    }
-
-    public AccessType getAccessType() {
-
-        return accessType;
-    }
-
-    public void setAccessType(AccessType accessType) {
-
-        this.accessType = accessType;
-    }
 }

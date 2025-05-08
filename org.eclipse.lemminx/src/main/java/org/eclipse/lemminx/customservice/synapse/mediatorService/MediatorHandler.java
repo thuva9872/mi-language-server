@@ -358,6 +358,9 @@ public class MediatorHandler {
                             StringWriter writer = new StringWriter();
                             String edit =
                                     templateMap.get(mediator).execute(writer, entry1.getValue()).toString().trim();
+                            if (isBlankEdit(entry1.getKey(), edit)) {
+                                continue;
+                            }
                             TextEdit textEdit = new TextEdit(entry1.getKey(), edit);
                             edits.addTextEdit(textEdit);
                         }
@@ -367,6 +370,14 @@ public class MediatorHandler {
             }
         }
         return null;
+    }
+
+    private boolean isBlankEdit(Range range, String edit) {
+
+        if (range.getStart().getLine() == range.getEnd().getLine()) {
+            return range.getStart().getCharacter() == range.getEnd().getCharacter() && edit.trim().isEmpty();
+        }
+        return false;
     }
 
     private JsonArray getMediatorsArrayForCategory(JsonElement value) {

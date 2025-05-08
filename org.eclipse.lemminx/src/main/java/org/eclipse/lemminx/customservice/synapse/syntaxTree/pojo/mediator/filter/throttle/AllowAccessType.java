@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023, WSO2 LLC. (http://www.wso2.com).
+ * Copyright (c) 2025, WSO2 LLC. (http://www.wso2.com).
  *
  * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -18,30 +18,6 @@
 
 package org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.filter.throttle;
 
-import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.STNode;
+public class AllowAccessType implements AccessType {
 
-public class MediatorThrottleAssertion extends STNode {
-
-    STNode maximumConcurrentAccess;
-    Policy[] policy;
-
-    public STNode getMaximumConcurrentAccess() {
-
-        return maximumConcurrentAccess;
-    }
-
-    public void setMaximumConcurrentAccess(STNode maximumConcurrentAccess) {
-
-        this.maximumConcurrentAccess = maximumConcurrentAccess;
-    }
-
-    public Policy[] getPolicy() {
-
-        return policy;
-    }
-
-    public void setPolicy(Policy[] policy) {
-
-        this.policy = policy;
-    }
 }

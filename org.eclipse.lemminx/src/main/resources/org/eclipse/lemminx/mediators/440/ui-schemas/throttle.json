@@ -125,11 +125,12 @@
                         "type": "attribute",
                         "value": {
                             "name": "maximumConcurrentAccess",
-                            "displayName": "Maxmium Concurrent Access",
+                            "displayName": "Maximum Concurrent Access",
                             "inputType": "string",
                             "defaultValue": "0",
                             "required": false,
                             "helpTip": "",
+                            "validateType": "number",
                             "enableCondition": [
                                 {
                                     "policyType": "INLINE"
@@ -197,7 +198,13 @@
                                         "inputType": "string",
                                         "defaultValue": "0",
                                         "required": false,
-                                        "helpTip": ""
+                                        "helpTip": "",
+                                        "validateType": "number",
+                                        "enableCondition": [
+                                            {
+                                                "accessType": "Control"
+                                            }
+                                        ]
                                     }
                                 },
                                 {
@@ -208,7 +215,13 @@
                                         "inputType": "string",
                                         "defaultValue": "0",
                                         "required": false,
-                                        "helpTip": ""
+                                        "helpTip": "",
+                                        "validateType": "number",
+                                        "enableCondition": [
+                                            {
+                                                "accessType": "Control"
+                                            }
+                                        ]
                                     }
                                 },
                                 {
@@ -219,7 +232,13 @@
                                         "inputType": "string",
                                         "defaultValue": "0",
                                         "required": false,
-                                        "helpTip": ""
+                                        "helpTip": "",
+                                        "validateType": "number",
+                                        "enableCondition": [
+                                            {
+                                                "accessType": "Control"
+                                            }
+                                        ]
                                     }
                                 }
                             ],

@@ -18,20 +18,25 @@
 
 package org.eclipse.lemminx.customservice.synapse.mediatorService.mediators;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import org.eclipse.lemminx.customservice.synapse.mediatorService.MediatorUtils;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.TagRanges;
-import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.filter.throttle.Policy;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.filter.throttle.AccessType;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.filter.throttle.AllowAccessType;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.filter.throttle.ControlAccessType;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.filter.throttle.DenyAccessType;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.filter.throttle.Throttle;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.filter.throttle.ThrottlePolicies;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.filter.throttle.ThrottlePolicy;
+import org.eclipse.lemminx.customservice.synapse.utils.Utils;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class ThrottleMediator {
@@ -62,16 +67,22 @@ public class ThrottleMediator {
             // Processing policyEntries if they are present
             List<List<String>> policyEntries = (List<List<String>>) data.get("policyEntries");
             if (policyEntries != null) {
-                List<Map<String, Object>> formattedEntries = policyEntries.stream()
-                        .map(entry -> Map.<String, Object>of(
-                                "throttleType", entry.get(0),
-                                "throttleRange", entry.get(1),
-                                "accessType", entry.get(2),
-                                "maxRequestCount", entry.get(3),
-                                "unitTime", entry.get(4),
-                                "prohibitPeriod", entry.get(5)
-                        ))
-                        .collect(Collectors.toList());
+                List<Map<String, Object>> formattedEntries = policyEntries.stream().map(entry -> {
+                    Map<String, Object> policyEntry = new HashMap<>();
+                    policyEntry.put("throttleType", entry.get(0));
+                    policyEntry.put("throttleRange", entry.get(1));
+                    policyEntry.put("accessType", entry.get(2));
+                    policyEntry.put("isAllow", "Allow".equals(entry.get(2)));
+                    policyEntry.put("isDeny", "Deny".equals(entry.get(2)));
+                    boolean isControl = "Control".equals(entry.get(2));
+                    policyEntry.put("isControl", isControl);
+                    if (isControl) {
+                        policyEntry.put("maxRequestCount", entry.get(3));
+                        policyEntry.put("unitTime", entry.get(4));
+                        policyEntry.put("prohibitPeriod", entry.get(5));
+                    }
+                    return policyEntry;
+                }).collect(Collectors.toList());
                 data.put("policyEntries", formattedEntries);
                 data.put("hasPolicyEntries", !formattedEntries.isEmpty());
             }
@@ -120,8 +131,8 @@ public class ThrottleMediator {
 
         Map<String, TagRanges> ranges = new HashMap<>();
         ranges.put("throttle", throttle.getRange());
-        if (throttle.getPolicy() != null) {
-            ranges.put("policy", throttle.getPolicy().getRange());
+        if (throttle.getPolicies() != null) {
+            ranges.put("policy", throttle.getPolicies().getRange());
         }
         if (throttle.getOnAccept() != null) {
             ranges.put("onAccept", throttle.getOnAccept().getRange());
@@ -195,48 +206,37 @@ public class ThrottleMediator {
             data.put("onRejectBranchsequenceType", "ANONYMOUS");
         }
 
-        // Handle policyType and policyEntries
-        ThrottlePolicy policy = node.getPolicy();
-        if (policy != null) {
-            String policyKey = policy.getKey();
+        ThrottlePolicies policies = node.getPolicies();
+        if (policies != null) {
+            String policyKey = policies.getKey();
             if (policyKey != null) {
-                data.put("policyType", "REGISTRY_REFERENCE");
                 data.put("policyKey", policyKey);
+                data.put("policyType", "REGISTRY_REFERENCE");
             } else {
                 data.put("policyType", "INLINE");
-
-                Policy[] policyArray = policy.getContent();
-                if (policyArray != null && policyArray.length > 0) {
-                    Policy firstContent = policyArray[0];
-                    Object policyDetails =
-                            firstContent.getPolicyOrAllOrExactlyOne().get(0);
-                    Gson gson = new Gson();
-                    JsonObject policyDetailsJson = gson.toJsonTree(policyDetails).getAsJsonObject();
-                    JsonElement maxConcurrentAccess = policyDetailsJson.get("maximumConcurrentAccess");
-                    if (maxConcurrentAccess != null) {
-                        data.put("maximumConcurrentAccess",
-                                maxConcurrentAccess.getAsJsonObject().get("textNode").getAsString());
-                    }
-
-                    JsonArray policies = policyDetailsJson.getAsJsonArray("policy");
-                    if (policies != null) {
-                        List<List<Object>> policyEntries = new ArrayList<>();
-                        for (JsonElement policyElement : policies) {
-                            JsonObject policyObj = policyElement.getAsJsonObject();
-                            Map<String, Object> extractedPolicy = extractPolicyData(policyObj);
-
-                            List<Object> entry = List.of(
-                                    extractedPolicy.get("throttleType") != null ? extractedPolicy.get("throttleType") : "",
-                                    extractedPolicy.get("throttleRange") != null ? extractedPolicy.get("throttleRange") : "",
-                                    extractedPolicy.get("accessType") != null ? extractedPolicy.get("accessType") : "",
-                                    extractedPolicy.get("maxRequestCount") != null ? extractedPolicy.get("maxRequestCount") : "",
-                                    extractedPolicy.get("unitTime") != null ? extractedPolicy.get("unitTime") : "",
-                                    extractedPolicy.get("prohibitPeriod") != null ? extractedPolicy.get("prohibitPeriod") : ""
-                            );
-                            policyEntries.add(entry);
+                data.put("maximumConcurrentAccess", policies.getMaximumConcurrentAccess());
+                List<ThrottlePolicy> policyList = policies.getPolicies();
+                if (policyList != null && !policyList.isEmpty()) {
+                    List<List<Object>> policyEntries = new ArrayList<>();
+                    for (ThrottlePolicy policy : policyList) {
+                        List<Object> entry = new ArrayList<>();
+                        entry.add(policy.getId().getType());
+                        entry.add(policy.getId().getValue());
+                        AccessType accessType = policy.getAccessType();
+                        if (accessType instanceof AllowAccessType) {
+                            entry.add("Allow");
+                        } else if (accessType instanceof DenyAccessType) {
+                            entry.add("Deny");
+                        } else if (accessType instanceof ControlAccessType) {
+                            entry.add("Control");
+                            ControlAccessType controlAccessType = (ControlAccessType) accessType;
+                            entry.add(String.valueOf(controlAccessType.getMaximumCount()));
+                            entry.add(String.valueOf(controlAccessType.getUnitTime()));
+                            entry.add(String.valueOf(controlAccessType.getProhibitTimePeriod()));
                         }
-                        data.put("policyEntries", policyEntries);
+                        policyEntries.add(entry);
                     }
+                    data.put("policyEntries", policyEntries);
                 }
             }
         } else {
@@ -245,46 +245,5 @@ public class ThrottleMediator {
         }
 
         return data;
-    }
-
-    private static Map<String, Object> extractPolicyData(JsonObject policyJson) {
-
-        Map<String, Object> policy = new HashMap<>();
-
-        // Handling throttleType and throttleRange
-        JsonObject id = policyJson.getAsJsonObject("id");
-        if (id != null) {
-            policy.put("throttleType", id.get("type").getAsString());
-            policy.put("throttleRange", id.get("value").getAsString());
-        }
-
-        // Processing policyOrAllOrExactlyOne entries
-        JsonArray policyEntries = policyJson.getAsJsonArray("policyOrAllOrExactlyOne");
-        for (JsonElement entry : policyEntries) {
-            JsonObject entryObj = entry.getAsJsonObject();
-            String tag = entryObj.get("tag").getAsString();
-            switch (tag) {
-                case "throttle:UnitTime":
-                    policy.put("unitTime", entryObj.get("textNode").getAsString());
-                    break;
-                case "throttle:ProhibitTimePeriod":
-                    policy.put("prohibitPeriod", entryObj.get("textNode").getAsString());
-                    break;
-                case "throttle:MaximumCount":
-                    policy.put("maxRequestCount", entryObj.get("textNode").getAsString());
-                    break;
-                case "wsp:Policy":
-                    if (entryObj.has("policyOrAllOrExactlyOne")) {
-                        JsonArray innerPolicies = entryObj.getAsJsonArray("policyOrAllOrExactlyOne");
-                        if (!innerPolicies.isEmpty()) {
-                            String accessType =
-                                    innerPolicies.get(0).getAsJsonObject().get("tag").getAsString().split(":")[1];
-                            policy.put("accessType", accessType);
-                        }
-                    }
-                    break;
-            }
-        }
-        return policy;
     }
 }

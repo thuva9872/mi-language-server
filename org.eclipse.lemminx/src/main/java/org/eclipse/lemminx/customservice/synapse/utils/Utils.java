@@ -168,6 +168,9 @@ public class Utils {
     public static int parseInt(String number) {
 
         int value = -1;
+        if (StringUtils.isEmpty(number)) {
+            return value;
+        }
         try {
             value = Integer.parseInt(number);
         } catch (NumberFormatException e) {

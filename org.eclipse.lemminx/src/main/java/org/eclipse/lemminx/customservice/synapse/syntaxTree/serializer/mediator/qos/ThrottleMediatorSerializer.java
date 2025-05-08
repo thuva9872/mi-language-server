@@ -21,7 +21,7 @@ package org.eclipse.lemminx.customservice.synapse.syntaxTree.serializer.mediator
 import org.apache.axiom.om.OMElement;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.Mediator;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.filter.throttle.Throttle;
-import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.filter.throttle.ThrottlePolicy;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.filter.throttle.ThrottlePolicies;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.serializer.AnonymousSequenceSerializer;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.serializer.mediator.AbstractMediatorSerializer;
 
@@ -35,8 +35,8 @@ public class ThrottleMediatorSerializer extends AbstractMediatorSerializer {
 
         serializeAttributes(throttleElement, throttle);
 
-        if (throttle.getPolicy() != null) {
-            serializePolicy(throttleElement, throttle.getPolicy());
+        if (throttle.getPolicies() != null) {
+            serializePolicies(throttleElement, throttle.getPolicies());
         }
 
         serializeSequences(throttleElement, throttle);
@@ -56,7 +56,7 @@ public class ThrottleMediatorSerializer extends AbstractMediatorSerializer {
 
     }
 
-    private void serializePolicy(OMElement throttleElement, ThrottlePolicy policy) {
+    private void serializePolicies(OMElement throttleElement, ThrottlePolicies policies) {
 
     }
 
