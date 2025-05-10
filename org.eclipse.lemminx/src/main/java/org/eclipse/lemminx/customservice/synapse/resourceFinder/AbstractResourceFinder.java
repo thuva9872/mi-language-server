@@ -406,7 +406,13 @@ public abstract class AbstractResourceFinder {
         registry.setType(Utils.addUnderscoreBetweenWords(type).toUpperCase());
         registry.setFrom(REGISTRY);
         ((RegistryResource) registry).setRegistryPath(file.getAbsolutePath());
-        ((RegistryResource) registry).setRegistryKey(Utils.getRegistryKey(file));
+        if (Utils.isFileInRegistry(file)) {
+            registry.setFrom(Constant.REGISTRY);
+            ((RegistryResource) registry).setRegistryKey(Utils.getRegistryKey(file));
+        } else {
+            registry.setFrom(Constant.RESOURCES);
+            ((RegistryResource) registry).setRegistryKey(Utils.getResourceKey(file));
+        }
         return registry;
     }
 

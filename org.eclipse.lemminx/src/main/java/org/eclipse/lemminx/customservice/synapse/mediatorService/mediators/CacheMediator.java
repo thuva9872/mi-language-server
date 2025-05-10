@@ -31,7 +31,7 @@ import java.util.Map;
 public class CacheMediator {
     private static final List<String> cacheTagAttributes =
             List.of("cacheMediatorImplementation", "cacheType", "cacheTimeout",
-            "maxMessageSize", "scope", "hashGeneratorAttribute", "description");
+            "maxMessageSize", "scope", "hashGeneratorAttribute", "description", "id");
     private static final List<String> protocolTagAttributes =
             List.of("cacheMediatorImplementation", "cacheProtocolType",
             "cacheProtocolMethods", "headersToIncludeInHash", "headersToExcludeInHash", "responseCodes",
