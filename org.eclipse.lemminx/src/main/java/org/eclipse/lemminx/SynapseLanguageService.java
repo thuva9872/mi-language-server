@@ -304,6 +304,12 @@ public class SynapseLanguageService implements ISynapseLanguageService {
         SchemaGenerate.generate(connectorHolder, connectorPath);
     }
 
+    public void updateInboundConnectors() {
+
+        inboundConnectorHolder.getCustomInboundConnectors(new File(Path.of(projectUri, Constant.SRC, Constant.MAIN, Constant.WSO2MI,
+                Constant.RESOURCES, Constant.INBOUND_CONNECTORS_DIR).toString()), projectServerVersion);
+    }
+
     @Override
     public CompletableFuture<List<String>> getRegistryFiles(TextDocumentIdentifier param) {
 
