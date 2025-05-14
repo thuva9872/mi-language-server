@@ -231,9 +231,10 @@ public class MediatorHandler {
         } else if (data instanceof List) {
             List<LinkedTreeMap> dataValueList = (List) data;
             StringBuilder dataValueStr = new StringBuilder("[");
+            int i = 0;
             for (LinkedTreeMap dataValueItem : dataValueList) {
-                if (dataValueItem.get(Constant.PROPERTY_NAME) != null
-                        && dataValueItem.get(Constant.PROPERTY_VALUE) != null) {
+                if (dataValueItem.get(Constant.PROPERTY_NAME) != null &&
+                        dataValueItem.get(Constant.PROPERTY_VALUE) != null) {
                     Object propertyValue;
                     if (dataValueItem.get(Constant.PROPERTY_VALUE) instanceof LinkedTreeMap) {
                         LinkedTreeMap dataValueLinkedTree = (LinkedTreeMap) dataValueItem.get(Constant.PROPERTY_VALUE);
@@ -241,8 +242,11 @@ public class MediatorHandler {
                     } else {
                         propertyValue = dataValueItem.get(Constant.PROPERTY_VALUE);
                     }
-                    dataValueStr.append(String.format("[\"%s\",\"%s\"],",
+                    dataValueStr.append(String.format("{\"%s\":\"%s\"}",
                             dataValueItem.get(Constant.PROPERTY_NAME), propertyValue));
+                    if (i < dataValueList.size() - 1) {
+                        dataValueStr.append(", ");
+                    }
                 } else if (dataValueList.size() > 0) {
                     // get all the values in the list and append to the dataValueStr in the format
                     // ["value1","value2","value3"...]
@@ -267,6 +271,7 @@ public class MediatorHandler {
                     }
                     dataValueStr.append("],");
                 }
+                i++;
             }
             dataValueStr.append(']');
             dataValue.put(Constant.VALUE, String.format("%s", dataValueStr));
