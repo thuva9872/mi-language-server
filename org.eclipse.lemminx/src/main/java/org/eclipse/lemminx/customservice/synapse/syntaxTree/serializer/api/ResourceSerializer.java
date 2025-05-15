@@ -65,7 +65,7 @@ public class ResourceSerializer {
 
         if (resource.getOutSequenceAttribute() != null) {
             resourceElt.addAttribute("outSequence", resource.getOutSequenceAttribute(), null);
-        } else {
+        } else if (resource.getOutSequence() != null) {
             OMElement outSequenceElt = AnonymousSequenceSerializer.serializeAnonymousSequence(resource.getOutSequence());
             outSequenceElt.setLocalName("outSequence");
             resourceElt.addChild(outSequenceElt);

@@ -367,7 +367,6 @@ public class APIGenerator {
             }
 
             resource.setInSequence(APIGenerator.getDefaultInSequence(pathParamList));
-            resource.setOutSequence(APIGenerator.getDefaultOutSequence());
             generatedResources.add(resource);
 
             if (methodMapping.containsKey(methodName)) {
@@ -413,19 +412,7 @@ public class APIGenerator {
         defaultPayload.setFormat(defaultPayloadFormat);
         defaultInSeq.addToMediatorList(defaultPayload);
 
-        defaultInSeq.addToMediatorList(new Loopback());
+        defaultInSeq.addToMediatorList(new Respond());
         return defaultInSeq;
-    }
-
-    /**
-     * Function to create default out sequence
-     *
-     * @return template API in-sequence
-     */
-    private static Sequence getDefaultOutSequence() {
-
-        Sequence defaultOutSeq = new Sequence();
-        defaultOutSeq.addToMediatorList(new Respond());
-        return defaultOutSeq;
     }
 }
