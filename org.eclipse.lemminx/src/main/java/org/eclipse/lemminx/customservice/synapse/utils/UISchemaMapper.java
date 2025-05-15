@@ -34,9 +34,11 @@ import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.inbound.Inbound
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.inbound.InboundEndpointParameters;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.misc.common.Parameter;
 import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 import static org.eclipse.lemminx.customservice.synapse.utils.Utils.isExpression;
@@ -108,13 +110,46 @@ public class UISchemaMapper {
 
         String tableFieldValue = Utils.removeCDATATag(tableFieldCDATA);
         JsonArray result = new JsonArray();
-        JSONArray tableValues = new JSONArray(tableFieldValue);
-        for (int i = 0; i < tableValues.length(); i++) {
-            JSONArray tableValue = tableValues.getJSONArray(i);
-            if (tableValue.length() == 2) {
-                String fieldName = tableValue.getString(0).trim();
-                String fieldValue = tableValue.getString(1).trim();
+        JsonArray tableValues = Utils.getJsonArray(tableFieldValue);
+        for (JsonElement tableValue : tableValues) {
+            String fieldName = "";
+            String fieldValue = "";
+            if (tableValue instanceof JsonObject) {
+                Set<Map.Entry<String, JsonElement>> entries = ((JsonObject) tableValue).entrySet();
+                Map.Entry<String, JsonElement> entry = entries.iterator().next();
+                fieldName = entry.getKey();
+                JsonElement fieldValueElement = entry.getValue();
+                if (fieldValueElement.isJsonPrimitive() && fieldValueElement.getAsJsonPrimitive().isString()) {
+                    fieldValue = fieldValueElement.getAsString();
+                }
+            } else if (tableValue instanceof JsonArray) {
+                JsonArray tableValueArray = (JsonArray) tableValue;
+                if (tableValueArray.size() == 2) {
+                    fieldName = tableValueArray.get(0).getAsString();
+                    fieldValue = tableValueArray.get(1).getAsString();
+                } else {
+                    // support for param manager with 3 fields
+                    JsonArray tableDataRow = new JsonArray();
+                    JsonObject rowInfo;
 
+                    for (int j = 0; j < tableValueArray.size(); j++) {
+                        fieldName = tableValueArray.get(j).getAsString();
+                        if (j == 0) {
+                            tableDataRow.add(fieldName);
+                        } else {
+                            rowInfo = new JsonObject();
+                            fieldValue = tableValueArray.get(j).getAsString().trim();
+                            rowInfo.add("isExpression", new JsonPrimitive(isExpression(fieldValue)));
+                            rowInfo.add("value", new JsonPrimitive(fieldValue));
+                            rowInfo.add("namespaces", new JsonArray());
+                            tableDataRow.add(rowInfo);
+                        }
+                    }
+                    result.add(tableDataRow);
+                    continue;
+                }
+            }
+            if (StringUtils.isNotEmpty(fieldName)) {
                 JsonArray tableDataRow = new JsonArray();
                 JsonObject rowInfo = new JsonObject();
 
@@ -125,26 +160,6 @@ public class UISchemaMapper {
                 tableDataRow.add(fieldName);
                 tableDataRow.add(rowInfo);
                 tableDataRow.add(rowInfo);
-                result.add(tableDataRow);
-               } else {
-                // support for param manager with 3 fields
-                JsonArray tableDataRow = new JsonArray();
-                JsonObject rowInfo;
-
-                for (int j = 0; j < tableValue.length(); j++) {
-                    String fieldName = tableValue.getString(j).trim();
-                    if (j == 0) {
-                        tableDataRow.add(fieldName);
-                    } else {
-                        rowInfo = new JsonObject();
-                        String fieldValue = tableValue.getString(j).trim();
-                        rowInfo.add("isExpression", new JsonPrimitive(isExpression(fieldValue)));
-                        rowInfo.add("value", new JsonPrimitive(fieldValue));
-                        rowInfo.add("namespaces", new JsonArray());
-                        tableDataRow.add(rowInfo);
-                    }
-                }
-
                 result.add(tableDataRow);
             }
         }
