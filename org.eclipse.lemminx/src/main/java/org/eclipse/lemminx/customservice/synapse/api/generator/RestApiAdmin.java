@@ -355,7 +355,7 @@ public class RestApiAdmin {
                         param.apiPath);
             }
         }
-        return generateSwaggerFromSynapseAPIByFormat(param.apiPath, param.isJsonOut);
+        return generateSwaggerFromSynapseAPIByFormat(param.apiPath, param.isJsonOut, param.port);
     }
 
     /**
@@ -364,7 +364,7 @@ public class RestApiAdmin {
      * @param apiPath API file path
      * @return generated API
      */
-    public GenerateSwaggerResponse generateSwaggerFromSynapseAPIByFormat(String apiPath, boolean isJSON) {
+    public GenerateSwaggerResponse generateSwaggerFromSynapseAPIByFormat(String apiPath, boolean isJSON, int port) {
 
         GenerateSwaggerResponse response = new GenerateSwaggerResponse();
         try {
@@ -372,7 +372,7 @@ public class RestApiAdmin {
             DOMDocument domDocument = Utils.getDOMDocument(apiFile);
             APIFactory factory = new APIFactory();
             API api = (API) factory.create(domDocument.getDocumentElement());
-            String generatedSwagger = generateSwaggerFromSynapseAPIByFormat(api, isJSON);
+            String generatedSwagger = generateSwaggerFromSynapseAPIByFormat(api, isJSON, port);
             response.setSwagger(generatedSwagger);
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, "Error occurred while reading the existing API file.", e);
@@ -388,9 +388,9 @@ public class RestApiAdmin {
      * @param isJSON generate Swagger in YAML / JSON format.
      * @return generated swagger.
      */
-    public String generateSwaggerFromSynapseAPIByFormat(API api, boolean isJSON) {
+    public String generateSwaggerFromSynapseAPIByFormat(API api, boolean isJSON, int port) {
 
-        return new OpenAPIProcessor(api).getOpenAPISpecification(isJSON);
+        return new OpenAPIProcessor(api).getOpenAPISpecification(isJSON, port);
     }
 
     private GenerateSwaggerResponse generateUpdatedSwaggerFromAPI(File existingSwaggerFile, boolean isJSONIn,

@@ -18,10 +18,13 @@
 
 package org.eclipse.lemminx.customservice.synapse.api.generator.pojo;
 
+import org.eclipse.lemminx.customservice.synapse.api.generator.SwaggerConstants;
+
 public class GenerateSwaggerParam {
 
     public String apiPath;
     public String swaggerPath;
     public boolean isJsonIn;
     public boolean isJsonOut;
+    public int port = SwaggerConstants.DEFAULT_PORT;
 }

@@ -81,11 +81,11 @@ public class OpenAPIProcessor {
      * @param isJSON response data type JSON / YAML.
      * @return OpenAPI definition as string.
      */
-    public String getOpenAPISpecification(final boolean isJSON) {
+    public String getOpenAPISpecification(final boolean isJSON, final int port) {
 
         final OpenAPI openAPI = new OpenAPI();
         addInfoSection(openAPI);
-        addServersSection(openAPI);
+        addServersSection(openAPI, port);
         // Re-use the previous implementation to get resource details of the API.
         final Map<String, Object> dataMap = GenericApiObjectDefinition.getPathMap(api);
         Paths paths = new Paths();
@@ -196,7 +196,7 @@ public class OpenAPIProcessor {
                 }
             }
         } else {
-            addServersSection(openAPI);
+            addServersSection(openAPI, SwaggerConstants.DEFAULT_PORT);
         }
     }
 
@@ -205,7 +205,7 @@ public class OpenAPIProcessor {
      *
      * @param openAPI OpenApi object.
      */
-    private void addServersSection(OpenAPI openAPI) {
+    private void addServersSection(OpenAPI openAPI, int port) {
 
         String basePath;
         if (ApiVersionType.url.equals(api.getVersionType())) {
@@ -218,7 +218,7 @@ public class OpenAPIProcessor {
         if (StringUtils.isNotBlank(api.getHostname()) && !"-1".equals(api.getPort())) {
             host = api.getHostname() + ":" + api.getPort();
         } else {
-            host = SwaggerConstants.DEFAULT_HOST + ":" + SwaggerConstants.DEFAULT_PORT;
+            host = SwaggerConstants.DEFAULT_HOST + ":" + port;
         }
         Server server = new Server();
         server.setUrl(scheme + "://" + host + basePath);
