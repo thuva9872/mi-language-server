@@ -58,6 +58,7 @@ import java.io.InputStreamReader;
 import java.io.StringWriter;
 import java.lang.reflect.Method;
 import java.math.BigInteger;
+import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -1368,20 +1369,32 @@ public class Utils {
         }
         // Default to zip if fileType is not specified
         String effectiveFileType = StringUtils.isEmpty(fileType) ? Constant.ZIP_EXTENSION_NO_DOT : fileType;
-        String url = String.format("https://maven.wso2.org/nexus/content/groups/public/%s/%s/%s/%s-%s.%s",
+        String urlString = String.format("https://maven.wso2.org/nexus/content/groups/public/%s/%s/%s/%s-%s.%s",
                 groupId.replace(".", "/"), artifactId, version, artifactId, version, effectiveFileType);
         File targetFile = new File(targetDirectory, String.format("%s-%s.%s", artifactId, version, effectiveFileType));
-        try (BufferedInputStream in = new BufferedInputStream(new URL(url).openStream());
-                FileOutputStream fileOutputStream = new FileOutputStream(targetFile)) {
-            byte[] dataBuffer = new byte[1024];
-            int bytesRead;
-            while ((bytesRead = in.read(dataBuffer, 0, 1024)) != -1) {
-                fileOutputStream.write(dataBuffer, 0, bytesRead);
+        HttpURLConnection connection = null;
+        try {
+            URL url = new URL(urlString);
+            connection = (HttpURLConnection) url.openConnection();
+            connection.setConnectTimeout(20_000);
+            connection.setReadTimeout(40_000);
+
+            try (BufferedInputStream in = new BufferedInputStream(connection.getInputStream());
+                 FileOutputStream fileOutputStream = new FileOutputStream(targetFile)) {
+                byte[] dataBuffer = new byte[1024];
+                int bytesRead;
+                while ((bytesRead = in.read(dataBuffer, 0, 1024)) != -1) {
+                    fileOutputStream.write(dataBuffer, 0, bytesRead);
+                }
             }
         } catch (IOException e) {
             logger.log(Level.SEVERE, "Error occurred while downloading dependency: " + artifactId + "-" + version + "."
-                    + effectiveFileType + " from " + url + ". Error: " + e.getMessage());
+                    + effectiveFileType + " from " + urlString + ". Error: " + e.getMessage());
             throw e;
+        } finally {
+            if (connection != null) {
+                connection.disconnect();
+            }
         }
     }
 
