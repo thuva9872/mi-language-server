@@ -45,7 +45,7 @@
                 <xs:element name="maxResults" type="xs:int"/>
                 <xs:element name="minScore" type="xs:double"/>
                 <xs:element name="responseVariable" type="xs:string"/>
-                <xs:element name="overwriteBody" type="xs:boolean"/>
+                <xs:element name="overwriteBody" type="xs:boolean" minOccurs="0"/>
             </xs:all>
         </xs:complexType>
     </xs:element>

@@ -49,7 +49,7 @@
                 <xs:element name="needEmbedding" type="xs:boolean"/>
                 <xs:element name="embeddingModel" type="xs:string" minOccurs="0"/>
                 <xs:element name="responseVariable" type="xs:string"/>
-                <xs:element name="overwriteBody" type="xs:boolean"/>
+                <xs:element name="overwriteBody" type="xs:boolean" minOccurs="0"/>
             </xs:all>
         </xs:complexType>
     </xs:element>

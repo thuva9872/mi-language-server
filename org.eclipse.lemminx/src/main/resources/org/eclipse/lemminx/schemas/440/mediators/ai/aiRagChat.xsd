@@ -35,14 +35,14 @@
                     <xs:complexType>
                         <xs:all>
                             <xs:element name="llmConfigKey" type="xs:string"/>
-                            <xs:element name="memoryConfigKey" type="xs:string"/>
+                            <xs:element name="memoryConfigKey" type="xs:string" minOccurs="0"/>
                             <xs:element name="embeddingConfigKey" type="xs:string"/>
                             <xs:element name="vectorStoreConfigKey" type="xs:string"/>
                         </xs:all>
                     </xs:complexType>
                 </xs:element>
                 <xs:element name="system" type="xs:string" minOccurs="0"/>
-                <xs:element name="userID" type="xs:string"/>
+                <xs:element name="userID" type="xs:string" minOccurs="0"/>
                 <xs:element name="prompt" type="xs:string"/>
                 <xs:element name="outputType" type="xs:string"/>
                 <xs:element name="responseVariable" type="xs:string"/>

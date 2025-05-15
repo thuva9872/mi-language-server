@@ -57,6 +57,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -125,11 +126,6 @@ public class AIConnectorHandler {
                     }
                 }
             }
-            String agentId = getAgentID(mediator, node);
-            if (StringUtils.isNotEmpty(agentId)) {
-                parameterData.add(
-                        Map.of(Constant.NAME, Constant.AGENT_ID, Constant.VALUE, Map.of(Constant.VALUE, agentId)));
-            }
             connectorData.put(Constant.PARAMETERS, parameterData);
             if (node instanceof AIAgent && ((AIAgent) node).getTools() != null) {
                 List<Map<String, String>> tools = new ArrayList<>();
@@ -148,16 +144,6 @@ public class AIConnectorHandler {
                     .execute(writer, connectorData).toString();
             TextEdit textEdit = new TextEdit(range, edit);
             return new SynapseConfigResponse(textEdit);
-        }
-        return null;
-    }
-
-    private String getAgentID(String mediator, STNode node) {
-
-        if (node instanceof AIAgent && ((AIAgent) node).getAgentID() != null) {
-            return ((AIAgent) node).getAgentID();
-        } else if (node instanceof AIAgent || Constant.AI_AGENT_TAG.equals(mediator)) {
-            return String.valueOf(UUID.randomUUID());
         }
         return null;
     }
@@ -215,8 +201,8 @@ public class AIConnectorHandler {
 
         processAIValues(data, templateParameters);
 
-        // Remove overwrite body as we need the mediator response in the variable.
-        data.remove(Constant.OVERWRITE_BODY);
+        // Replace overwrite body as false as we need the mediator response in the variable.
+        data.replace(Constant.OVERWRITE_BODY, false);
 
         // Generate mediator/connector (tool) xml
         SynapseConfigResponse mediatorEdits =
@@ -329,7 +315,13 @@ public class AIConnectorHandler {
                 toolData.put(RESULT_EXPRESSION, value.toString());
             }
         } else if (data.containsKey(Constant.RESPONSE_VARIABLE)) {
-            String resultExpression = String.format("${vars.%s}", data.get(Constant.RESPONSE_VARIABLE).toString());
+            String variableName;
+            if (data.get(Constant.RESPONSE_VARIABLE) instanceof Map<?, ?>) {
+                variableName = ((Map<?, ?>) data.get(Constant.RESPONSE_VARIABLE)).get(Constant.VALUE).toString();
+            } else {
+                variableName = data.get(Constant.RESPONSE_VARIABLE).toString();
+            }
+            String resultExpression = String.format("${vars.%s.payload}", variableName);
             toolData.put(RESULT_EXPRESSION, resultExpression);
         }
         toolData.put(Constant.DESCRIPTION, data.get(TOOL_DESCRIPTION).toString());
@@ -447,8 +439,7 @@ public class AIConnectorHandler {
         new JsonObject();
         wrapMediatorSchema.addProperty("type", "attributeGroup");
         JsonObject wrapMediatorValueObj = new JsonObject();
-        wrapMediatorValueObj.addProperty("groupName",
-                String.format("%s Configuration", isConnector ? "Operation" : "Connector"));
+        wrapMediatorValueObj.addProperty("groupName", StringUtils.EMPTY);
         wrapMediatorValueObj.add(Constant.ELEMENTS, elements); // Add the existing elements of the mediator
         wrapMediatorSchema.add(Constant.VALUE, wrapMediatorValueObj);
         return wrapMediatorSchema;
@@ -492,15 +483,13 @@ public class AIConnectorHandler {
                     valueObj.addProperty(SUPPORTS_AI_VALUES, true);
                     addParameterDescriptionField(valueObj, template);
                 }
-
-                // Hide the overwrite body field as it is not needed for AI tools
-                JsonElement value = valueObj.get(Constant.NAME);
-                if (value instanceof JsonPrimitive && Constant.OVERWRITE_BODY.equals(value.getAsString())) {
-                    valueObj.addProperty("hidden", true);
-                }
             } else if (Constant.ATTRIBUTE_GROUP.equals(elementObj.get(Constant.TYPE).getAsString())) {
-                markAIValueSupportedFields(
-                        elementObj.getAsJsonObject(Constant.VALUE).getAsJsonArray(Constant.ELEMENTS), template);
+                JsonObject elementObjValue = elementObj.getAsJsonObject(Constant.VALUE);
+                if (Constant.OUTPUT.equalsIgnoreCase(elementObjValue.get("groupName").getAsString())) {
+                    elementObjValue.addProperty("hidden", true);
+                    continue;
+                }
+                markAIValueSupportedFields(elementObjValue.getAsJsonArray(Constant.ELEMENTS), template);
             }
         }
         elements.addAll(descriptionElements);
@@ -822,8 +811,8 @@ public class AIConnectorHandler {
         Mediator toolMediator = template.getSequence().getMediatorList().get(0);
         Range toolMediatorRange = getSTNodeRange(toolMediator);
 
-        // Remove overwrite body as we need the mediator response in the variable. TODO: Remove this field from tool UI
-        data.remove(Constant.OVERWRITE_BODY);
+        // Replace overwrite body as false as we need the mediator response in the variable.
+        data.replace(Constant.OVERWRITE_BODY, false);
 
         Map<String, Map<String, String>> templateParameters = new HashMap<>();
         processAIValues(data, templateParameters);
