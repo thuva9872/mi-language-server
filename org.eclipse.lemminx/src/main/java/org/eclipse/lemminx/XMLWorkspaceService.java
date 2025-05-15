@@ -20,6 +20,7 @@ import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
 
 import org.eclipse.lemminx.commons.WorkspaceFolders;
+import org.eclipse.lemminx.customservice.synapse.utils.Constant;
 import org.eclipse.lemminx.services.extensions.commands.IXMLCommandService;
 import org.eclipse.lsp4j.DidChangeConfigurationParams;
 import org.eclipse.lsp4j.DidChangeWatchedFilesParams;
@@ -93,7 +94,9 @@ public class XMLWorkspaceService implements WorkspaceService, IXMLCommandService
 				.getTextDocumentService();
 		List<FileEvent> changes = params.getChanges();
 		for (FileEvent change : changes) {
-			if (change.getUri().contains("connectors") && change.getUri().contains(".zip")) {
+			if (change.getUri().contains(Constant.INBOUND_CONNECTORS_DIR) && change.getUri().contains(".zip")) {
+				((SynapseLanguageService) xmlLanguageServer.getSynapseLanguageService()).updateInboundConnectors();
+			} else if (change.getUri().contains(Constant.CONNECTORS) && change.getUri().contains(".zip")) {
 				((SynapseLanguageService) xmlLanguageServer.getSynapseLanguageService()).updateConnectors();
 			} else {
 				if (!xmlTextDocumentService.documentIsOpen(change.getUri())) {

@@ -19,6 +19,7 @@
 package org.eclipse.lemminx.customservice.synapse.inbound.conector;
 
 import com.github.fge.jackson.JsonLoader;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import org.apache.commons.lang3.StringUtils;
@@ -37,7 +38,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -54,6 +57,7 @@ public class InboundConnectorHolder {
     private HashMap<String, String> inboundConnectors;
     private Map<String, JsonObject> localInboundConnectors;
     private JsonObject inboundConnectorListJson;
+    private String projectRuntimeVersion;
 
     public InboundConnectorHolder() {
 
@@ -69,15 +73,12 @@ public class InboundConnectorHolder {
         }
         this.projectPath = projectPath;
         this.projectId = Utils.getHash(projectPath);
+        this.projectRuntimeVersion = projectRuntimeVersion;
         this.tempFolderPath = System.getProperty("user.home") + File.separator + ".wso2-mi" + File.separator +
                 Constant.INBOUND_CONNECTORS + File.separator + new File(projectPath).getName() + "_" +projectId;
-        InputStream inputStream = JsonLoader.class
-                .getResourceAsStream("/org/eclipse/lemminx/inbound-endpoints/inbound_endpoints_"
-                        + projectRuntimeVersion.replace(".", StringUtils.EMPTY) + Constant.JSON_FILE_EXT);
-        BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
-        this.inboundConnectorListJson = JsonParser.parseReader(reader).getAsJsonObject();
         this.localInboundConnectors = Utils.getUISchemaMap("org/eclipse/lemminx/inbound-endpoints/"
                 + projectRuntimeVersion.replace(".", StringUtils.EMPTY));
+        getCustomInboundConnectors();
         loadInboundConnectors();
     }
 
@@ -94,6 +95,64 @@ public class InboundConnectorHolder {
                 }
             }
         }
+    }
+
+    public void getCustomInboundConnectors() {
+
+        File extractFolder = new File(Path.of(this.projectPath, Constant.SRC, Constant.MAIN, Constant.WSO2MI,
+                Constant.RESOURCES, Constant.INBOUND_CONNECTORS_DIR).toString());
+        InputStream inputStream = JsonLoader.class
+                .getResourceAsStream("/org/eclipse/lemminx/inbound-endpoints/inbound_endpoints_"
+                        + this.projectRuntimeVersion.replace(".", StringUtils.EMPTY) + Constant.JSON_FILE_EXT);
+        BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+        this.inboundConnectorListJson = JsonParser.parseReader(reader).getAsJsonObject();
+        List<File> inboundConnectorZips = getInboundConnectorZips(extractFolder);
+        for (File zip : inboundConnectorZips) {
+            String zipName = zip.getName().replace(Constant.DOT + "zip", StringUtils.EMPTY);
+            File extractToFolder = new File(extractFolder.getAbsolutePath() + File.separator + zipName);
+            try {
+                Utils.extractZip(zip, extractToFolder);
+                String schema = Utils.readFile(extractToFolder.toPath().resolve(Constant.RESOURCES)
+                        .resolve(Constant.UI_SCHEMA_JSON).toFile());
+                saveInboundConnector(Utils.getJsonObject(schema).get(Constant.NAME).getAsString(), schema);
+                JsonObject newConnector = new JsonObject();
+                JsonObject connectorSchema = Utils.getJsonObject(schema);
+                newConnector.addProperty(Constant.NAME, connectorSchema.get(Constant.TITLE) != null ?
+                        connectorSchema.get(Constant.TITLE).getAsString() : StringUtils.EMPTY);
+                newConnector.addProperty(Constant.ID, connectorSchema.get(Constant.ID) != null ?
+                        connectorSchema.get(Constant.ID).getAsString() : StringUtils.EMPTY);
+                newConnector.addProperty(Constant.DESCRIPTION, connectorSchema.get(Constant.DESCRIPTION) != null ?
+                        connectorSchema.get(Constant.DESCRIPTION).getAsString() : StringUtils.EMPTY);
+                newConnector.addProperty(Constant.TYPE, Constant.INBOUND_DASH_ENDPOINT);
+                JsonArray connectorArray = this.inboundConnectorListJson.getAsJsonArray(Constant.INBOUND_CONNECTOR_DATA);
+                connectorArray.add(newConnector);
+            } catch (Exception e) {
+                LOGGER.log(Level.SEVERE, "Failed to import custom inbound-connector:" + zipName, e);
+            }
+            if (extractToFolder.exists() && extractToFolder.isDirectory()) {
+                try {
+                    Utils.deleteDirectory(extractToFolder.toPath());
+                } catch (IOException e) {
+                    LOGGER.log(Level.SEVERE, "Failed to delete extracted inbound-connector:" + zipName, e);
+                }
+            }
+        }
+    }
+
+    private List<File> getInboundConnectorZips(File extractFolder) {
+
+        List<File> inboundConnectorZips = new ArrayList<>();
+        if (extractFolder.exists() && extractFolder.isDirectory()) {
+            File[] files = extractFolder.listFiles();
+            if (files != null) {
+                for (File f : files) {
+                    if (Utils.isZipFile(f)) {
+                        inboundConnectorZips.add(f);
+                    }
+                }
+            }
+        }
+        return inboundConnectorZips;
     }
 
     private void loadInboundConnector(File file) {

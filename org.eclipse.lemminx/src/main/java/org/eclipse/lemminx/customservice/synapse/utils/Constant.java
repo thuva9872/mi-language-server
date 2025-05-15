@@ -617,6 +617,8 @@ public class Constant {
     public static final String GROUP_ID_KEY = "groupId";
     public static final String ARTIFACT_ID_KEY = "artifactId";
     public static final String VERSION_KEY = "version";
+    public static final String INBOUND_CONNECTORS_DIR = "inbound-connectors";
+    public static final String INBOUND_CONNECTOR_DATA = "inbound-connector-data";
 
     static {
         // AI Connection to Display Name bi-Mapping

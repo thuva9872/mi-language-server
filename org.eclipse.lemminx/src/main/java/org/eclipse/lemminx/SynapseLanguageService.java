@@ -305,6 +305,11 @@ public class SynapseLanguageService implements ISynapseLanguageService {
         SchemaGenerate.generate(connectorHolder, connectorPath);
     }
 
+    public void updateInboundConnectors() {
+
+        inboundConnectorHolder.getCustomInboundConnectors();
+    }
+
     @Override
     public CompletableFuture<List<String>> getRegistryFiles(TextDocumentIdentifier param) {
 
