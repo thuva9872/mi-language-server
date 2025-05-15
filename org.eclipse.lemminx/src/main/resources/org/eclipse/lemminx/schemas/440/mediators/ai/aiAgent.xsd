@@ -35,12 +35,12 @@
                     <xs:complexType>
                         <xs:all>
                             <xs:element name="llmConfigKey" type="xs:string"/>
-                            <xs:element name="memoryConfigKey" type="xs:string"/>
+                            <xs:element name="memoryConfigKey" type="xs:string" minOccurs="0"/>
                         </xs:all>
                     </xs:complexType>
                 </xs:element>
                 <xs:element name="agentID" type="xs:string"/>
-                <xs:element name="userID" type="xs:string"/>
+                <xs:element name="userID" type="xs:string" minOccurs="0"/>
                 <xs:element name="role" type="xs:string" minOccurs="0"/>
                 <xs:element name="instructions" type="xs:string" minOccurs="0"/>
                 <xs:element name="prompt" type="xs:string"/>
