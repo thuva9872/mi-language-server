@@ -57,6 +57,7 @@ public class InboundConnectorHolder {
     private HashMap<String, String> inboundConnectors;
     private Map<String, JsonObject> localInboundConnectors;
     private JsonObject inboundConnectorListJson;
+    private String projectRuntimeVersion;
 
     public InboundConnectorHolder() {
 
@@ -72,12 +73,12 @@ public class InboundConnectorHolder {
         }
         this.projectPath = projectPath;
         this.projectId = Utils.getHash(projectPath);
+        this.projectRuntimeVersion = projectRuntimeVersion;
         this.tempFolderPath = System.getProperty("user.home") + File.separator + ".wso2-mi" + File.separator +
                 Constant.INBOUND_CONNECTORS + File.separator + new File(projectPath).getName() + "_" +projectId;
         this.localInboundConnectors = Utils.getUISchemaMap("org/eclipse/lemminx/inbound-endpoints/"
                 + projectRuntimeVersion.replace(".", StringUtils.EMPTY));
-        getCustomInboundConnectors(new File(Path.of(projectPath, Constant.SRC, Constant.MAIN, Constant.WSO2MI,
-                Constant.RESOURCES, Constant.INBOUND_CONNECTORS_DIR).toString()), projectRuntimeVersion);
+        getCustomInboundConnectors();
         loadInboundConnectors();
     }
 
@@ -96,11 +97,13 @@ public class InboundConnectorHolder {
         }
     }
 
-    public void getCustomInboundConnectors(File extractFolder, String projectRuntimeVersion) {
+    public void getCustomInboundConnectors() {
 
+        File extractFolder = new File(Path.of(this.projectPath, Constant.SRC, Constant.MAIN, Constant.WSO2MI,
+                Constant.RESOURCES, Constant.INBOUND_CONNECTORS_DIR).toString());
         InputStream inputStream = JsonLoader.class
                 .getResourceAsStream("/org/eclipse/lemminx/inbound-endpoints/inbound_endpoints_"
-                        + projectRuntimeVersion.replace(".", StringUtils.EMPTY) + Constant.JSON_FILE_EXT);
+                        + this.projectRuntimeVersion.replace(".", StringUtils.EMPTY) + Constant.JSON_FILE_EXT);
         BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
         this.inboundConnectorListJson = JsonParser.parseReader(reader).getAsJsonObject();
         List<File> inboundConnectorZips = getInboundConnectorZips(extractFolder);
