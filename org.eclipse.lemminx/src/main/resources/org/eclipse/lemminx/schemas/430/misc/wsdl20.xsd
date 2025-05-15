@@ -1,22 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (c) 2025, WSO2 LLC. (http://www.wso2.com).
+  ~
+  ~ All rights reserved. This program and the accompanying materials
+  ~ are made available under the terms of the Eclipse Public License v2.0
+  ~ which accompanies this distribution, and is available at
+  ~ http://www.eclipse.org/legal/epl-v20.html
+  ~
+  ~ SPDX-License-Identifier: EPL-2.0
+  ~
+  ~ Contributors:
+  ~     WSO2 LLC - support for WSO2 Micro Integrator Configuration
+  -->
+
 <!DOCTYPE xs:schema PUBLIC "-//W3C//DTD XMLSCHEMA 200102//EN" "./xsd/XMLSchema.dtd">
-<!-- 
-   W3C XML Schema defined in the Web Services Description (WSDL)
-    Version 2.0 specification
-     http://www.w3.org/TR/wsdl20
-
-   Copyright © 2007 World Wide Web Consortium,
-
-   (Massachusetts Institute of Technology, European Research Consortium for
-   Informatics and Mathematics, Keio University). All Rights Reserved. This
-   work is distributed under the W3C® Software License [1] in the hope that
-   it will be useful, but WITHOUT ANY WARRANTY; without even the implied
-   warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-
-   [1] http://www.w3.org/Consortium/Legal/2002/copyright-software-20021231
-
-   $Id: wsdl20.xsd,v 1.4 2008/03/31 19:12:51 plehegar Exp $
--->
 <xs:schema
         xmlns:xs="http://www.w3.org/2001/XMLSchema"
         xmlns:wsdl="http://www.w3.org/ns/wsdl"
