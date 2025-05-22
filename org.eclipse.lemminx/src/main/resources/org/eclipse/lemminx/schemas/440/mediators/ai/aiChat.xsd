@@ -40,7 +40,7 @@
                     </xs:complexType>
                 </xs:element>
                 <xs:element name="system" type="xs:string" minOccurs="0"/>
-                <xs:element name="userID" type="xs:string" minOccurs="0"/>
+                <xs:element name="sessionId" type="xs:string" minOccurs="0"/>
                 <xs:element name="prompt" type="xs:string"/>
                 <xs:element name="attachments" type="xs:string" minOccurs="0"/>
                 <xs:element name="outputType" type="xs:string"/>
