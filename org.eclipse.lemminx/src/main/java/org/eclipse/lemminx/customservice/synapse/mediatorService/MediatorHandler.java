@@ -207,7 +207,13 @@ public class MediatorHandler {
         Map<String, Object> dataValue = new HashMap<>();
         boolean isExpressionField = false;
         if (data instanceof String) {
-            dataValue.put(Constant.VALUE, String.format("%s", data));
+            String dataStr = (String) data;
+            String trimmedDataStr = dataStr.trim();
+            if (trimmedDataStr.startsWith("{") && trimmedDataStr.endsWith("}")) {
+                dataValue.put(Constant.VALUE, String.format("'%s'", trimmedDataStr));
+            } else {
+                dataValue.put(Constant.VALUE, String.format("%s", data));
+            }
         } else if (data instanceof Boolean) {
             dataValue.put(Constant.VALUE, data);
         } else if (data instanceof Map) {

@@ -35,7 +35,7 @@
                         </xs:all>
                     </xs:complexType>
                 </xs:element>
-                <xs:element name="userID" type="xs:string" minOccurs="0"/>
+                <xs:element name="sessionId" type="xs:string" minOccurs="0"/>
                 <xs:element name="role" type="xs:string" minOccurs="0"/>
                 <xs:element name="instructions" type="xs:string" minOccurs="0"/>
                 <xs:element name="prompt" type="xs:string"/>
