@@ -126,6 +126,7 @@ import org.eclipse.lsp4j.TextDocumentIdentifier;
 import org.eclipse.lsp4j.WorkspaceFolder;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.eclipse.lsp4j.jsonrpc.messages.Either3;
+import org.wso2.mi.tool.connector.tools.generator.grpc.GRPCConnectorGenerator;
 import org.wso2.mi.tool.connector.tools.generator.openapi.ConnectorGenerator;
 
 import java.io.File;
@@ -621,8 +622,13 @@ public class SynapseLanguageService implements ISynapseLanguageService {
     public CompletableFuture<ConnectorGeneratorResponse> generateConnector(ConnectorGenerateRequest connectorGenReq) {
         String filePath = null;
         try {
-            filePath = ConnectorGenerator.generateConnector(connectorGenReq.openAPIPath,
-                    connectorGenReq.connectorProjectPath, projectServerVersion, projectUri);
+            if (connectorGenReq.openAPIPath.endsWith(".proto")) {
+                filePath = GRPCConnectorGenerator.generateConnector(connectorGenReq.openAPIPath,
+                        connectorGenReq.connectorProjectPath, projectServerVersion, projectUri);
+            } else {
+                filePath = ConnectorGenerator.generateConnector(connectorGenReq.openAPIPath,
+                        connectorGenReq.connectorProjectPath, projectServerVersion, projectUri);
+            }
         } catch (Exception e) {
             log.log(Level.SEVERE, "Error occurred while generating the connector", e);
         }
