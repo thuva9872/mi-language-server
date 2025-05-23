@@ -1,4 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2025, WSO2 LLC. (http://www.wso2.com).
+  ~
+  ~ All rights reserved. This program and the accompanying materials
+  ~ are made available under the terms of the Eclipse Public License v2.0
+  ~ which accompanies this distribution, and is available at
+  ~ http://www.eclipse.org/legal/epl-v20.html
+  ~
+  ~ SPDX-License-Identifier: EPL-2.0
+  ~
+  ~ Contributors:
+  ~     WSO2 LLC - support for WSO2 Micro Integrator Configuration
+  -->
+
 <!DOCTYPE schema
         PUBLIC "-//W3C//DTD XMLSchema 200102//EN" "./xsd/XMLSchema.dtd"
         [
@@ -8,23 +22,6 @@
                 <!ENTITY % p ''>
                 <!ENTITY % s ''>
                 ]>
-
-<!-- Schema for XML Signatures
-    http://www.w3.org/2000/09/xmldsig#
-    $Revision: 1.2 $ on $Date: 2013-04-16 12:48:49 $ by $Author: denis $
-
-    Copyright 2001 The Internet Society and W3C (Massachusetts Institute
-    of Technology, Institut National de Recherche en Informatique et en
-    Automatique, Keio University). All Rights Reserved.
-    http://www.w3.org/Consortium/Legal/
-
-    This document is governed by the W3C Software License [1] as described
-    in the FAQ [2].
-
-    [1] http://www.w3.org/Consortium/Legal/copyright-software-19980720
-    [2] http://www.w3.org/Consortium/Legal/IPR-FAQ-20000620.html#DTD
--->
-
 
 <schema xmlns="http://www.w3.org/2001/XMLSchema"
         xmlns:ds="http://www.w3.org/2000/09/xmldsig#"
