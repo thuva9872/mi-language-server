@@ -57,12 +57,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
-import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -192,8 +190,8 @@ public class AIConnectorHandler {
             return null;
         }
         SynapseConfigResponse agentEditResponse = new SynapseConfigResponse();
-
-        String sequenceTemplateName = getSequenceTemplateName(mediator);
+        String toolName = data.get(TOOL_NAME) != null ? data.get(TOOL_NAME).toString() : mediator;
+        String sequenceTemplateName = getSequenceTemplateName(toolName);
 
         String sequenceTemplatePath =
                 Path.of(projectUri).resolve(TEMPLATE_FOLDER_PATH).resolve(sequenceTemplateName + ".xml").toString();
@@ -331,9 +329,9 @@ public class AIConnectorHandler {
     /**
      * Generates a unique sequence template name for the newly added tool.
      */
-    private String getSequenceTemplateName(String mediator) {
+    private String getSequenceTemplateName(String toolName) {
 
-        String sequenceTemplateName = String.format("%s_%s_", mediator.replace(".", "_"), "tool");
+        String sequenceTemplateName = sanitizeToolName(toolName);
         NewProjectResourceFinder resourceFinder = new NewProjectResourceFinder();
         ResourceResponse response =
                 resourceFinder.getAvailableResources(projectUri, Either.forLeft("sequenceTemplate"));
@@ -341,15 +339,37 @@ public class AIConnectorHandler {
             return sequenceTemplateName + randomGenerator.nextInt(1000);
         }
 
-        int i = 0;
+        int i = 1;
         Set<String> existingNames =
                 response.getResources().stream().map(Resource::getName).collect(Collectors.toSet());
-        String newName;
-        do {
+        String newName = sequenceTemplateName;
+        while (existingNames.contains(newName)) {
             newName = sequenceTemplateName + i;
             i++;
-        } while (existingNames.contains(newName));
+        }
         return newName;
+    }
+
+    public static String sanitizeToolName(String input) {
+
+        if (input == null || input.isBlank()) {
+            return Constant.TOOL;
+        }
+
+        String[] parts = input.trim().split("[\\s_\\-]+");
+        StringBuilder result = new StringBuilder();
+
+        for (String part : parts) {
+            String cleaned = part.replaceAll("[^a-zA-Z0-9]", "");
+            if (!cleaned.isEmpty()) {
+                result.append(Character.toUpperCase(cleaned.charAt(0)));
+                if (cleaned.length() > 1) {
+                    result.append(cleaned.substring(1));
+                }
+            }
+        }
+
+        return result.toString();
     }
 
     /**
@@ -758,9 +778,8 @@ public class AIConnectorHandler {
         }
 
         boolean needTemplateEdit = dirtyFields.stream().anyMatch(field -> !TOOL_EDIT_FIELDS.contains(field));
-        boolean isToolDescriptionChanged = dirtyFields.contains(TOOL_DESCRIPTION);
 
-        if (!needTemplateEdit && !isToolDescriptionChanged) {
+        if (!needTemplateEdit) {
             return agentEditResponse;
         }
 
@@ -771,33 +790,8 @@ public class AIConnectorHandler {
         }
         DOMDocument sequenceTemplateDocument = Utils.getDOMDocumentFromPath(sequenceTemplatePath);
         STNode stNode = SyntaxTreeGenerator.buildTree(sequenceTemplateDocument.getDocumentElement());
-        if (needTemplateEdit) {
-            modifySequenceTemplate(stNode, data, dirtyFields, mediator, sequenceTemplatePath, agentEditResponse);
-        }
-        if (isToolDescriptionChanged) {
-            modifySequenceTemplateDescription(stNode, sequenceTemplatePath, data.get(TOOL_DESCRIPTION).toString(),
-                    agentEditResponse);
-        }
+        modifySequenceTemplate(stNode, data, dirtyFields, mediator, sequenceTemplatePath, agentEditResponse);
         return agentEditResponse;
-    }
-
-    private void modifySequenceTemplateDescription(STNode stNode, String sequenceTemplatePath, String description,
-                                                   SynapseConfigResponse agentEditResponse) {
-
-        if (!isValidTool(stNode)) {
-            return;
-        }
-        Template template = (Template) stNode;
-        Range editRange;
-        STNode descriptionNode = template.getDescription();
-        if (descriptionNode != null) {
-            editRange = getSTNodeRange(descriptionNode);
-        } else {
-            Position templateOpenTagEndPosition = template.getRange().getStartTagRange().getEnd();
-            editRange = new Range(templateOpenTagEndPosition, templateOpenTagEndPosition);
-        }
-        String descriptionXml = String.format("<description>%s</description>", Utils.escapeXML(description));
-        agentEditResponse.addTextEdit(new DocumentTextEdit(editRange, descriptionXml, sequenceTemplatePath));
     }
 
     private void modifySequenceTemplate(STNode stNode, Map<String, Object> data, List<String> dirtyFields,
@@ -811,46 +805,23 @@ public class AIConnectorHandler {
         Mediator toolMediator = template.getSequence().getMediatorList().get(0);
         Range toolMediatorRange = getSTNodeRange(toolMediator);
 
+        Map<String, Map<String, String>> templateParameters = new HashMap<>();
+
+        processAIValues(data, templateParameters);
+
         // Replace overwrite body as false as we need the mediator response in the variable.
         data.replace(Constant.OVERWRITE_BODY, false);
 
-        Map<String, Map<String, String>> templateParameters = new HashMap<>();
-        processAIValues(data, templateParameters);
         SynapseConfigResponse mediatorEdits =
                 mediatorHandler.generateSynapseConfig(sequenceTemplatePath, toolMediatorRange, mediator, data,
                         dirtyFields);
+        String templateXml = generateSequenceTemplate(mediatorEdits, templateParameters, template.getName(), data);
 
-        for (TextEdit edit : mediatorEdits.getTextEdits()) {
-            agentEditResponse.addTextEdit(
-                    new DocumentTextEdit(edit.getRange(), edit.getNewText(), sequenceTemplatePath));
-        }
+        Range range = getSTNodeRange(template);
+        range.setStart(new Position(0, 0));
+        DocumentTextEdit sequenceTemplateEdit = new DocumentTextEdit(range, templateXml, sequenceTemplatePath);
+        agentEditResponse.addTextEdit(sequenceTemplateEdit);
 
-        // Generate template parameter xml
-        Range templateParameterRange = getTemplateParameterRange(template);
-        StringBuilder parameterXmlBuilder = new StringBuilder();
-        for (Map.Entry<String, Map<String, String>> entry : templateParameters.entrySet()) {
-            String name = Utils.escapeXML(entry.getKey());
-            String isMandatory = Utils.escapeXML(entry.getValue().get(Constant.IS_MANDATORY));
-            String description = Utils.escapeXML(entry.getValue().get(Constant.DESCRIPTION));
-            String newParameter = String.format("<parameter name=\"%s\" isMandatory=\"%s\" description=\"%s\"/>%n",
-                    name, isMandatory, description);
-            parameterXmlBuilder.append(newParameter);
-        }
-        TextEdit parameterEdit =
-                new DocumentTextEdit(templateParameterRange, parameterXmlBuilder.toString(), sequenceTemplatePath);
-        agentEditResponse.addTextEdit(parameterEdit);
-    }
-
-    private Range getTemplateParameterRange(Template template) {
-
-        TemplateParameter[] parameters = template.getParameter();
-        if (parameters == null || parameters.length == 0) {
-            Position sequenceStart = template.getSequence().getRange().getStartTagRange().getStart();
-            return new Range(sequenceStart, sequenceStart);
-        }
-        Position startPosition = parameters[0].getRange().getStartTagRange().getStart();
-        Position endPosition = template.getSequence().getRange().getStartTagRange().getStart();
-        return new Range(startPosition, endPosition);
     }
 
     private Range getSTNodeRange(STNode stNode) {
