@@ -30,7 +30,7 @@ jobs:
         filePath=$(ls org.eclipse.lemminx/target/*SNAPSHOT.jar)
         file=$(basename $filePath)
         fileName=${file%.jar}
-        version=$(echo "$fileName" | cut -d'-' -f2-3)
+        version=$(echo "$fileName" | cut -d'-' -f4-6)
 
         echo $version
         echo "version=$version" >> $GITHUB_OUTPUT
