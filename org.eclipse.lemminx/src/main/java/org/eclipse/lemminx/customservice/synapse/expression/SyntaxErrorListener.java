@@ -57,7 +57,15 @@ public class SyntaxErrorListener extends BaseErrorListener {
                             String msg, RecognitionException e) {
 
         hasErrors = true;
-        ExpressionError error = new ExpressionError(line, charPositionInLine, msg, offendingSymbol, e);
-        errors.add(error);
+
+        StringBuilder errorMessage = new StringBuilder();
+        errorMessage.append("Syntax error at line ").append(line)
+                .append(", column ").append(charPositionInLine).append(": ");
+        if (offendingSymbol != null) {
+            errorMessage.append("offending symbol '").append(offendingSymbol).append("'. ");
+        }
+        errorMessage.append("Reason: ").append(msg);
+
+        errors.add(new ExpressionError(line, charPositionInLine, errorMessage.toString(), offendingSymbol, e));
     }
 }
