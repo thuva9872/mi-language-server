@@ -14,6 +14,7 @@
 
 package org.eclipse.lemminx.customservice.synapse.expression.pojo;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class ExpressionValidationResponse {
@@ -24,7 +25,12 @@ public class ExpressionValidationResponse {
     public ExpressionValidationResponse(boolean isValid, List<ExpressionError> errors) {
 
         this.isValid = isValid;
-        this.errors = errors;
+        this.errors = new ArrayList<>();
+        for (ExpressionError error : errors) {
+            // Ignore exceptions as they are not needed in the response
+            errors.add(new ExpressionError(error.getExpression(), error.getLine(), error.getCharPositionInLine(),
+                    error.getMessage(), error.getOffendingSymbol(), null));
+        }
     }
 
     public boolean isValid() {

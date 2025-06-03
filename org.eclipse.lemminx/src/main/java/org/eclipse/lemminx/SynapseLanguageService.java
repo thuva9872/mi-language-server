@@ -285,7 +285,11 @@ public class SynapseLanguageService implements ISynapseLanguageService {
     public CompletableFuture<ExpressionValidationResponse> expressionValidation(ExpressionParam param) {
 
         return CompletableFuture.supplyAsync(() -> {
-            List<ExpressionError> errors = ExpressionValidator.validate(param.getExpression());
+            String expression = param.getExpression();
+            if (expression.startsWith("${") && expression.endsWith("}")) {
+                expression = expression.substring(2, expression.length() - 1);
+            }
+            List<ExpressionError> errors = ExpressionValidator.validate(expression);
             return new ExpressionValidationResponse(errors.isEmpty(), errors);
         });
     }
