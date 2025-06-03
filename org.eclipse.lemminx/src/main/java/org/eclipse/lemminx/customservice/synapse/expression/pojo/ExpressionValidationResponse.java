@@ -28,8 +28,8 @@ public class ExpressionValidationResponse {
         this.errors = new ArrayList<>();
         for (ExpressionError error : errors) {
             // Ignore exceptions as they are not needed in the response
-            errors.add(new ExpressionError(error.getExpression(), error.getLine(), error.getCharPositionInLine(),
-                    error.getMessage(), error.getOffendingSymbol(), null));
+            this.errors.add(new ExpressionError(error.getExpression(), error.getLine(), error.getCharPositionInLine(),
+                    error.getMessage(), error.getOffendingSymbol().toString(), null));
         }
     }
 
