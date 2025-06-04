@@ -32,6 +32,7 @@ import org.apache.xerces.xni.parser.XMLDocumentFilter;
 import org.apache.xerces.xni.parser.XMLDocumentSource;
 import org.eclipse.lemminx.customservice.synapse.expression.pojo.ExpressionError;
 import org.eclipse.lemminx.customservice.synapse.expression.ExpressionValidator;
+import org.eclipse.lemminx.customservice.synapse.mediator.TryOutConstants;
 import org.eclipse.lemminx.extensions.xerces.xmlmodel.msg.XMLModelMessageFormatter;
 
 import java.nio.file.Path;
@@ -63,7 +64,7 @@ public class SynapseExpressionValidator implements XMLComponent, XMLDocumentFilt
 
     private boolean isFileInArtifacts(String baseSystemId) {
 
-        return baseSystemId.contains(Path.of("src", "main", "wso2mi", "artifacts").toString());
+        return baseSystemId.contains(TryOutConstants.PROJECT_ARTIFACT_PATH.toString());
     }
 
     @Override
