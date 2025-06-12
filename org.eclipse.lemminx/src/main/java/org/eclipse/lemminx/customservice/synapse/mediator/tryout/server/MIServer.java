@@ -118,7 +118,7 @@ public class MIServer {
             addServerLogger(reader);
 
             // Graceful shutdown hook
-            addShutDownHook();
+            addShutDownHook(reader);
         } catch (IOException e) {
             isStarting = false;
             LOGGER.log(Level.SEVERE, String.format("Error starting or running server: %s", e.getMessage()));
@@ -127,7 +127,7 @@ public class MIServer {
 
     private void addServerLogger(BufferedReader reader) {
 
-        new Thread(() -> {
+        Thread loggerThread = new Thread(() -> {
             try {
                 languageClient.tryoutLog("Starting TryOut Server...\n");
                 String line;
@@ -137,7 +137,9 @@ public class MIServer {
             } catch (IOException e) {
                 LOGGER.log(Level.SEVERE, String.format("Error handling server I/O: %s", e.getMessage()));
             }
-        }).start();
+        }, "Tryout-Server-Logger");
+        loggerThread.setDaemon(true);
+        loggerThread.start();
     }
 
     private synchronized void updateHotDeploymentInterval() {
@@ -225,10 +227,15 @@ public class MIServer {
         }
     }
 
-    private void addShutDownHook() {
+    private void addShutDownHook(BufferedReader reader) {
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             LOGGER.info("Initiating graceful shutdown...");
+            try {
+                reader.close();
+            } catch (IOException e) {
+                LOGGER.log(Level.SEVERE, String.format("Error closing reader: %s", e.getMessage()));
+            }
             deleteDeployedFiles();
             shutDown();
         }));
