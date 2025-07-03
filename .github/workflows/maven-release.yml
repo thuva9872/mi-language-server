@@ -84,7 +84,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.WSO2_INTEGRATION_BOT_TOKEN }}
         run: |
-          find target/ -type f -name '*-SNAPSHOT*.zip' -exec rm -f {} \;
           ls -l target/
           gh release create "${{ steps.compute_next.outputs.release_version }}" \
             --repo="$GITHUB_REPOSITORY" \
