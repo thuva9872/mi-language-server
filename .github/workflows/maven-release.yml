@@ -71,7 +71,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.WSO2_INTEGRATION_BOT_TOKEN }}
         run: |
-          mvn --batch-mode release:prepare release:perform \ 
+          mvn --batch-mode release:prepare release:perform \
             -DreleaseVersion=${{ steps.compute_next.outputs.release_version }} \
             -DdevelopmentVersion=${{ steps.compute_next.outputs.next_version }} \
             -Dtag=${{ steps.compute_next.outputs.release_version }} \
