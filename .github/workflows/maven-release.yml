@@ -76,6 +76,9 @@ jobs:
             -Dtag=${{ steps.compute_next.outputs.release_version }} \
             -Darguments="-DskipTests"
 
+      - name: zip the LS files
+        run: zip -j mi-language-server-${{steps.compute_next.outputs.release_version}}.zip org.eclipse.lemminx/target/*.jar -x '*tests.jar'
+
       - name: Create Github Release with Assets
         env:
           GITHUB_TOKEN: ${{ secrets.WSO2_INTEGRATION_BOT_TOKEN }}
@@ -84,5 +87,4 @@ jobs:
             --repo="$GITHUB_REPOSITORY" \
             --title="${{ steps.compute_next.outputs.release_version }}" \
             --generate-notes \
-            org.eclipse.lemminx/target/mi-language-server-${{ steps.compute_next.outputs.release_version }}.jar \
-            org.eclipse.lemminx/target/mi-language-server-uber.jar
+            mi-language-server-${{ steps.compute_next.outputs.release_version }}.zip
