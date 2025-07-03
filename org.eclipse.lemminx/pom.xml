@@ -120,7 +120,6 @@
 				<configuration>
 					<descriptors combine.children="append">
 						<descriptor>src/assembly/distribution.xml</descriptor>
-						<descriptor>src/assembly/zip.xml</descriptor>
 					</descriptors>
 					<finalName>${project.artifactId}</finalName>
 					<archive>
