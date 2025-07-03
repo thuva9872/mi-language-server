@@ -18,6 +18,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import org.eclipse.lemminx.customservice.ISynapseLanguageService;
 import org.eclipse.lemminx.customservice.SynapseLanguageClientAPI;
+import org.eclipse.lemminx.customservice.synapse.CodeDiagnosticRequest;
 import org.eclipse.lemminx.customservice.synapse.api.generator.pojo.IsEqualSwaggersParam;
 import org.eclipse.lemminx.customservice.synapse.api.generator.pojo.GenerateAPIResponse;
 import org.eclipse.lemminx.customservice.synapse.api.generator.pojo.GenerateSwaggerParam;
@@ -47,10 +48,13 @@ import org.eclipse.lemminx.customservice.synapse.db.DBConnectionTester;
 import org.eclipse.lemminx.customservice.synapse.debugger.entity.StepOverInfo;
 import org.eclipse.lemminx.customservice.synapse.dependency.tree.OverviewModelGenerator;
 import org.eclipse.lemminx.customservice.synapse.dependency.tree.pojo.OverviewModel;
+import org.eclipse.lemminx.customservice.synapse.expression.pojo.ExpressionError;
 import org.eclipse.lemminx.customservice.synapse.expression.ExpressionHelperProvider;
 import org.eclipse.lemminx.customservice.synapse.expression.ExpressionSignatureProvider;
+import org.eclipse.lemminx.customservice.synapse.expression.ExpressionValidator;
 import org.eclipse.lemminx.customservice.synapse.expression.pojo.ExpressionParam;
 import org.eclipse.lemminx.customservice.synapse.expression.ExpressionCompletionsProvider;
+import org.eclipse.lemminx.customservice.synapse.expression.pojo.ExpressionValidationResponse;
 import org.eclipse.lemminx.customservice.synapse.expression.pojo.HelperPanelData;
 import org.eclipse.lemminx.customservice.synapse.inbound.conector.InboundConnectorResponse;
 import org.eclipse.lemminx.customservice.synapse.inbound.conector.InboundConnectorHolder;
@@ -65,6 +69,9 @@ import org.eclipse.lemminx.customservice.synapse.mediatorService.pojo.MediatorRe
 import org.eclipse.lemminx.customservice.synapse.mediatorService.pojo.SynapseConfigRequest;
 import org.eclipse.lemminx.customservice.synapse.mediatorService.pojo.SynapseConfigResponse;
 import org.eclipse.lemminx.customservice.synapse.mediatorService.pojo.UISchemaRequest;
+import org.eclipse.lemminx.customservice.synapse.parser.Constants;
+import org.eclipse.lemminx.customservice.synapse.parser.DeployPluginDetails;
+import org.eclipse.lemminx.customservice.synapse.parser.DependencyDownloadManager;
 import org.eclipse.lemminx.customservice.synapse.parser.OverviewPage;
 import org.eclipse.lemminx.customservice.synapse.parser.OverviewPageDetailsResponse;
 import org.eclipse.lemminx.customservice.synapse.parser.UpdateConfigRequest;
@@ -113,17 +120,20 @@ import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.ArtifactTypeRes
 import org.eclipse.lemminx.customservice.synapse.utils.Constant;
 import org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.MediatorTryoutInfo;
 import org.eclipse.lemminx.customservice.synapse.utils.Utils;
+import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.extensions.contentmodel.settings.XMLValidationSettings;
 import org.eclipse.lemminx.services.extensions.completion.ICompletionResponse;
 import org.eclipse.lemminx.settings.SharedSettings;
-import org.eclipse.lemminx.utils.StringUtils;
+import org.eclipse.lemminx.uriresolver.URIResolverExtensionManager;
 import org.eclipse.lsp4j.DefinitionParams;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.PublishDiagnosticsParams;
 import org.eclipse.lsp4j.SignatureHelp;
 import org.eclipse.lsp4j.TextDocumentIdentifier;
+import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.WorkspaceFolder;
+import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.eclipse.lsp4j.jsonrpc.messages.Either3;
 import org.wso2.mi.tool.connector.tools.generator.grpc.GRPCConnectorGenerator;
@@ -141,7 +151,15 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class SynapseLanguageService implements ISynapseLanguageService {
+
     private static final Logger log = Logger.getLogger(SynapseLanguageService.class.getName());
+    private static final CancelChecker NULL_CANCEL_CHECKER = new CancelChecker() {
+        @Override
+        public void checkCanceled() {
+            // Do nothing.
+        }
+    };
+
     private XMLTextDocumentService xmlTextDocumentService;
     private XMLLanguageServer xmlLanguageServer;
     private SynapseLanguageClientAPI languageClient;
@@ -160,11 +178,13 @@ public class SynapseLanguageService implements ISynapseLanguageService {
     private String miServerPath;
     private ExpressionHelperProvider expressionHelperProvider;
     private DynamicFieldsHandler dynamicFieldsHandler;
+    private final URIResolverExtensionManager uriResolverExtensionManager;
 
     public SynapseLanguageService(XMLTextDocumentService xmlTextDocumentService, XMLLanguageServer xmlLanguageServer) {
 
         this.xmlTextDocumentService = xmlTextDocumentService;
         this.xmlLanguageServer = xmlLanguageServer;
+        uriResolverExtensionManager = xmlLanguageServer.getXMLLanguageService().getResolverExtensionManager();
         this.connectorHolder = ConnectorHolder.getInstance();
         this.inboundConnectorHolder = new InboundConnectorHolder();
         mediatorHandler = new MediatorHandler();
@@ -190,7 +210,7 @@ public class SynapseLanguageService implements ISynapseLanguageService {
                 connectionHandler.init(connectorHolder);
                 MediatorFactoryFinder.init(projectServerVersion, projectUri, connectorHolder);
                 DynamicClassLoader.updateClassLoader(Path.of(projectUri, "deployment", "libs").toFile());
-                this.tryOutManager = new TryOutManager(projectUri, miServerPath, connectorHolder);
+                this.tryOutManager = new TryOutManager(projectUri, miServerPath, connectorHolder, languageClient);
             } catch (Exception e) {
                 log.log(Level.SEVERE, "Error while updating class loader for DB drivers.", e);
             }
@@ -240,14 +260,41 @@ public class SynapseLanguageService implements ISynapseLanguageService {
 
         return xmlTextDocumentService.computeDOMAsync(param, (xmlDocument, cancelChecker) -> {
             cancelChecker.checkCanceled();
-            SharedSettings sharedSettings = xmlTextDocumentService.getSharedSettings();
-            XMLValidationSettings validationSettingsForUri = sharedSettings != null
-                    ? sharedSettings.getValidationSettings().getValidationSettings(xmlDocument.getDocumentURI())
-                    : null;
-            List<Diagnostic> diagnostics = xmlLanguageServer.getXMLLanguageService().doDiagnostics(xmlDocument,
-                    validationSettingsForUri,
-                    Collections.emptyMap(), cancelChecker);
-            return new PublishDiagnosticsParams(xmlDocument.getDocumentURI(), diagnostics);
+            return doDiagnostics(xmlDocument, cancelChecker);
+        });
+    }
+
+    private PublishDiagnosticsParams doDiagnostics(DOMDocument xmlDocument, CancelChecker cancelChecker) {
+
+        SharedSettings sharedSettings = xmlTextDocumentService.getSharedSettings();
+        XMLValidationSettings validationSettingsForUri = sharedSettings != null
+                ? sharedSettings.getValidationSettings().getValidationSettings(xmlDocument.getDocumentURI())
+                : null;
+        List<Diagnostic> diagnostics = xmlLanguageServer.getXMLLanguageService().doDiagnostics(xmlDocument,
+                validationSettingsForUri,
+                Collections.emptyMap(), cancelChecker);
+        return new PublishDiagnosticsParams(xmlDocument.getDocumentURI(), diagnostics);
+    }
+
+    @Override
+    public CompletableFuture<PublishDiagnosticsParams> codeDiagnostic(CodeDiagnosticRequest param) {
+
+        return CompletableFuture.supplyAsync(() -> {
+            DOMDocument xmlDocument = Utils.getDOMDocument(param.getCode(), uriResolverExtensionManager);
+            return doDiagnostics(xmlDocument, NULL_CANCEL_CHECKER);
+        });
+    }
+
+    @Override
+    public CompletableFuture<ExpressionValidationResponse> expressionValidation(ExpressionParam param) {
+
+        return CompletableFuture.supplyAsync(() -> {
+            String expression = param.getExpression();
+            if (expression.startsWith("${") && expression.endsWith("}")) {
+                expression = expression.substring(2, expression.length() - 1);
+            }
+            List<ExpressionError> errors = ExpressionValidator.validate(expression);
+            return new ExpressionValidationResponse(errors.isEmpty(), errors);
         });
     }
 
@@ -613,9 +660,15 @@ public class SynapseLanguageService implements ISynapseLanguageService {
 
     @Override
     public CompletableFuture<String> updateConnectorDependencies() {
-        String statusMessage = ConnectorDownloadManager.downloadConnectors(projectUri);
+        String statusMessage = DependencyDownloadManager.downloadDependencies(projectUri);
         updateConnectors();
         return CompletableFuture.supplyAsync(() -> statusMessage);
+    }
+
+    @Override
+    public CompletableFuture<String> loadDependentResources() {
+
+        return CompletableFuture.supplyAsync(() -> resourceFinder.loadDependentResources(projectUri));
     }
 
     @Override
@@ -667,6 +720,27 @@ public class SynapseLanguageService implements ISynapseLanguageService {
                 projectUri,
                 request.getConnectorName(),
                 request.getConnectionType()));
+    }
+
+    @Override
+    public CompletableFuture<DeployPluginDetails> updateMavenDeployPlugin(DeployPluginDetails pluginDetails) {
+
+        return CompletableFuture.supplyAsync(() -> PomParser.addCarDeployPluginToPom(
+                new File(projectUri + File.separator + Constants.POM_FILE), pluginDetails));
+    }
+
+    @Override
+    public CompletableFuture<DeployPluginDetails> getMavenDeployPluginDetails() {
+
+        return CompletableFuture.supplyAsync(() -> PomParser.extractCarDeployPluginFields(
+                new File(projectUri + File.separator + Constants.POM_FILE)));
+    }
+
+    @Override
+    public CompletableFuture<TextEdit> removeMavenDeployPlugin() {
+
+        return CompletableFuture.supplyAsync(() -> PomParser.removeDeployPlugin(
+                new File(projectUri + File.separator + Constants.POM_FILE)));
     }
 
     public String getProjectUri() {

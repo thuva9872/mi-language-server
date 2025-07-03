@@ -58,10 +58,12 @@ public class PluginHandler extends DefaultHandler {
         valueStartLine = locator.getLineNumber();
         valueStartColumn = locator.getColumnNumber();
         if (Constants.DEPENDENCY.equals(qName)) {
-            isDependency = true;
-            dependencyStartLine = locator.getLineNumber();
-            dependencyStartColumn = locator.getColumnNumber() - (qName.length() + 2);
-            dependencyType = "";
+            if (!isPlugin) {
+                isDependency = true;
+                dependencyStartLine = locator.getLineNumber();
+                dependencyStartColumn = locator.getColumnNumber() - (qName.length() + 2);
+                dependencyType = "";
+            }
         } else if (Constants.PLUGIN.equals(qName)) {
             isPlugin = true;
             pluginArtifactId = "";
@@ -220,6 +222,8 @@ public class PluginHandler extends DefaultHandler {
                 dependency.setRange(getRange(dependencyStartLine, dependencyStartColumn, valueEndLine, valueEndColumn));
                 if (Constants.ZIP.equals(dependencyType)) {
                     pomDetailsResponse.getDependenciesDetails().addConnectorDependencies(dependency);
+                } else if (Constants.CAR.equals(dependencyType)) {
+                    pomDetailsResponse.getDependenciesDetails().addIntegrationProjectDependencies(dependency);
                 } else {
                     pomDetailsResponse.getDependenciesDetails().addOtherDependencies(dependency);
                 }

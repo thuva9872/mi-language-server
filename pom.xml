@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.wso2</groupId>
 	<artifactId>mi-language-server-parent</artifactId>
-	<version>0.24.0-wso2v66-SNAPSHOT</version>
+	<version>0.24.0-wso2v69-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<name>Eclipse LemMinX</name>
 	<description>LemMinX is a XML Language Server Protocol (LSP), and can be used with any editor that supports LSP, to offer an outstanding XML editing experience</description>
@@ -21,6 +21,8 @@
 		<apache.woden.version>1.0.0.M9-wso2v1</apache.woden.version>
 		<org.apache.maven.shared.version>3.1.0</org.apache.maven.shared.version>
 		<velocity.version>2.4</velocity.version>
+		<org.antlr4.version>4.7.1</org.antlr4.version>
+		<antlr4.maven.plugin.version>4.7.1</antlr4.maven.plugin.version>
 	</properties>
 	<url>https://github.com/eclipse/lemminx</url>
 	<licenses>
@@ -31,9 +33,9 @@
 		</license>
 	</licenses>
 	<scm>
-		<connection>scm:git:https://github.com/wso2/mi-language-server.git</connection>
-		<developerConnection>scm:git:https://github.com/wso2/mi-language-server.git</developerConnection>
-		<url>https://github.com/wso2/mi-language-server</url>
+		<connection>scm:git:https://github.com/thuva9872/mi-language-server.git</connection>
+		<developerConnection>scm:git:https://github.com/thuva9872/mi-language-server.git</developerConnection>
+		<url>https://github.com/thuva9872/mi-language-server</url>
 		<tag>HEAD</tag>
 	</scm>
 	<modules>
@@ -206,6 +208,11 @@
 				<version>5.3.1</version>
 				<scope>test</scope>
 			</dependency>
+			<dependency>
+				<groupId>org.antlr</groupId>
+				<artifactId>antlr4-runtime</artifactId>
+				<version>${org.antlr4.version}</version>
+			</dependency>
 		</dependencies>
 	</dependencyManagement>
 	<build>
@@ -281,24 +288,36 @@
 					<version>3.0.0-M6</version>
 					<configuration>
 						<tagNameFormat>@{project.version}</tagNameFormat>
-						<arguments>-DskipTests=true -Dcbi.jarsigner.skip=false -Pci,generate-p2</arguments>
+						<arguments>-DskipTests=true -Dcbi.jarsigner.skip=false -Pci</arguments>
 					</configuration>
+				</plugin>
+				<plugin>
+					<groupId>org.antlr</groupId>
+					<artifactId>antlr4-maven-plugin</artifactId>
+					<version>${antlr4.maven.plugin.version}</version>
 				</plugin>
 			</plugins>
 		</pluginManagement>
 	</build>
 	<distributionManagement>
-		<snapshotRepository>
-			<id>wso2.snapshots</id>
-			<name>Apache Snapshot Repository</name>
-			<url>https://maven.wso2.org/nexus/content/repositories/snapshots/</url>
-		</snapshotRepository>
 		<repository>
-			<id>nexus-releases</id>
-			<name>WSO2 Release Distribution Repository</name>
-			<url>https://maven.wso2.org/nexus/service/local/staging/deploy/maven2/</url>
+			<id>dummy-repo</id>
+			<url>file://${project.build.directory}/dummy-repo</url>
 		</repository>
 	</distributionManagement>
+
+	<!--	<distributionManagement>-->
+<!--		<snapshotRepository>-->
+<!--			<id>wso2.snapshots</id>-->
+<!--			<name>Apache Snapshot Repository</name>-->
+<!--			<url>https://maven.wso2.org/nexus/content/repositories/snapshots/</url>-->
+<!--		</snapshotRepository>-->
+<!--		<repository>-->
+<!--			<id>nexus-releases</id>-->
+<!--			<name>WSO2 Release Distribution Repository</name>-->
+<!--			<url>https://maven.wso2.org/nexus/service/local/staging/deploy/maven2/</url>-->
+<!--		</repository>-->
+<!--	</distributionManagement>-->
 	<profiles>
 		<profile>
 			<id>ci</id>
