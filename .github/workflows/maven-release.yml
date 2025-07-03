@@ -76,15 +76,10 @@ jobs:
             -Dtag=${{ steps.compute_next.outputs.release_version }} \
             -Darguments="-DskipTests"
 
-      - name: Build artifacts for gh
-        run: |
-          mvn clean install -DskipTests
-
       - name: Create Github Release with Assets
         env:
           GITHUB_TOKEN: ${{ secrets.WSO2_INTEGRATION_BOT_TOKEN }}
         run: |
-          ls -l target/
           gh release create "${{ steps.compute_next.outputs.release_version }}" \
             --repo="$GITHUB_REPOSITORY" \
             --title="${{ steps.compute_next.outputs.release_version }}" \
