@@ -71,13 +71,15 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.WSO2_INTEGRATION_BOT_TOKEN }}
         run: |
-          mvn --batch-mode release:prepare release:perform  -DreleaseVersion=${{ steps.compute_next.outputs.release_version }} \
+          mvn --batch-mode release:prepare release:perform \ 
+            -DreleaseVersion=${{ steps.compute_next.outputs.release_version }} \
             -DdevelopmentVersion=${{ steps.compute_next.outputs.next_version }} \
             -Dtag=${{ steps.compute_next.outputs.release_version }} \
             -Darguments="-DskipTests"
 
       - name: zip the LS files
-        run: zip -j mi-language-server-${{steps.compute_next.outputs.release_version}}.zip org.eclipse.lemminx/target/*.jar -x '*tests.jar'
+        run: zip -j mi-language-server-${{steps.compute_next.outputs.release_version}}.zip \
+         org.eclipse.lemminx/target/*.jar -x '*tests.jar' '*-sources.jar' '*-javadoc.jar'
 
       - name: Create Github Release with Assets
         env:
