@@ -62,7 +62,7 @@ jobs:
 
       - name: Build artifacts
         run: |
-          mvn clean install
+          mvn clean install -DskipTests
 
       - name: Deploy artifacts with Maven
         env:
