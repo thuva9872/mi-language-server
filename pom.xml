@@ -33,9 +33,9 @@
 		</license>
 	</licenses>
 	<scm>
-		<connection>scm:git:https://github.com/wso2/mi-language-server.git</connection>
-		<developerConnection>scm:git:https://github.com/wso2/mi-language-server.git</developerConnection>
-		<url>https://github.com/wso2/mi-language-server</url>
+		<connection>scm:git:https://github.com/thuva9872/mi-language-server.git</connection>
+		<developerConnection>scm:git:https://github.com/thuva9872/mi-language-server.git</developerConnection>
+		<url>https://github.com/thuva9872/mi-language-server</url>
 		<tag>HEAD</tag>
 	</scm>
 	<modules>
