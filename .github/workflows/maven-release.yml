@@ -79,7 +79,7 @@ jobs:
 
       - name: zip the LS files
         run: |
-          zip -j  mi-language-server-${{steps.compute_next.outputs.release_version}}.zip org.eclipse.lemminx/target/*.jar \ 
+          zip -j  mi-language-server-${{steps.compute_next.outputs.release_version}}.zip org.eclipse.lemminx/target/*.jar \
           -x '*tests.jar' '*-sources.jar' '*-javadoc.jar'
 
       - name: Create Github Release with Assets
