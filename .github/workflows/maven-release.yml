@@ -89,5 +89,5 @@ jobs:
             --repo="$GITHUB_REPOSITORY" \
             --title="${{ steps.compute_next.outputs.release_version }}" \
             --generate-notes \
-            target/mi-language-server-${{ steps.compute_next.outputs.release_version }}.jar \
-            target/mi-language-server-uber.jar
+            org.eclipse.lemminx/target/mi-language-server-${{ steps.compute_next.outputs.release_version }}.jar \
+            org.eclipse.lemminx/target/mi-language-server-uber.jar
